@@ -1,0 +1,250 @@
+.pageWrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+}
+
+.topBar {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.homeLink {
+  color: var(--color-on-surface-variant);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+}
+
+.homeLink:hover {
+  color: var(--color-primary);
+}
+
+.authCard {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.cardHeader {
+  padding: 1.75rem 1.75rem 1.25rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.brandBadge {
+  align-self: flex-start;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: 0.25rem 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cardTitle {
+  color: var(--color-on-surface);
+  margin: 0.25rem 0 0 0;
+  font-weight: 600;
+}
+
+.cardSubtitle {
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.cardBody {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fieldLabel {
+  color: var(--color-on-surface);
+  font-weight: 500;
+}
+
+.fieldHelper {
+  color: var(--color-on-surface-variant);
+}
+
+.inputControl {
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline);
+  padding: 0.75rem 0.85rem;
+  font-family: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.inputControl:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.passwordWrapper {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.passwordInput {
+  flex: 1;
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline);
+  padding: 0.75rem 0.85rem;
+  font-family: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.passwordInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.toggleButton {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  border: 1px solid var(--color-outline);
+  border-left: none;
+  padding: 0 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.toggleButton:hover {
+  background-color: var(--color-surface-container-highest);
+  color: var(--color-on-surface);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.checkboxInput {
+  margin-top: 0.2rem;
+  accent-color: var(--color-primary);
+}
+
+.submitButton {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  padding: 0.9375rem 1.125rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  line-height: var(--typography-label-large-line-height);
+  font-weight: var(--typography-label-large-font-weight);
+  letter-spacing: var(--typography-label-large-letter-spacing);
+  width: 100%;
+  box-shadow: none;
+  margin-top: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--color-on-primary-container);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-error);
+  box-shadow: none;
+}
+
+.successMessage {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-primary);
+  box-shadow: none;
+}
+
+.noticeBox {
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface-variant);
+  border-left: 3px solid var(--color-primary);
+  border-top: 1px solid var(--color-outline-variant);
+  border-right: 1px solid var(--color-outline-variant);
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding: 0.85rem 1rem;
+  box-shadow: none;
+}
+
+.cardFooter {
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.footerLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
+.secondaryLink {
+  color: var(--color-on-surface-variant);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.secondaryLink:hover {
+  color: var(--color-on-surface);
+  text-decoration: underline;
+}
