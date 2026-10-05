@@ -77,5 +77,10 @@ export const copy = {
   },
   nav: {
     getStarted: "Get Started",
+    getStartedForFree: "Get Started for Free",
+  },
+  marketing: {
+    heroSubtitleLead: "Check in, view your records and balance,",
+    heroSubtitleTail: "and get verified gym answers.",
   },
 } as const;

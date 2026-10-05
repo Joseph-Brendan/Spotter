@@ -143,6 +143,15 @@ Reason: the age of a record is never hidden from the member.
 ## Navigation
 
   "Get Started"
+  "Get Started for Free"
+
+## Marketing
+
+  "Check in, view your records and balance,"
+  "and get verified gym answers."
+
+Stored as heroSubtitleLead and heroSubtitleTail. The tail renders on its own
+line.
 
 ## Tone for anything not listed
 

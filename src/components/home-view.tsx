@@ -119,22 +119,19 @@ export default function HomeView() {
           <>
             {/* Minimal Hero */}
             <section className={styles.heroSection} aria-label="Welcome">
-              <span className={styles.pillTag}>100% Approved Gym Records</span>
               <h1 className={styles.heroTitle}>
-                Your Gym. Your Records. Instant Access.
+                Your Gym. Your Records.{" "}
+                <span className={styles.heroLineBreak}>Instant Access.</span>
               </h1>
               <p className={styles.heroSubtitle}>
-                Spotter is designed for gym members. Generate your check-in code, view your verified personal attendance and ledger balance, and get verified answers anytime.
+                {copy.marketing.heroSubtitleLead}
+                <span className={styles.heroSubtitleLine}>
+                  {copy.marketing.heroSubtitleTail}
+                </span>
               </p>
               <div className={styles.heroCtaRow}>
-                <Link href="/login" className={styles.primaryBtn}>
-                  Log In to Member Portal
-                </Link>
-                <Link href="/signup" className={styles.outlineBtn}>
-                  Create Account
-                </Link>
-                <Link href="/reset-password" className={styles.linkReset}>
-                  Have a temporary password? Reset here &rarr;
+                <Link href="/signup" className={styles.primaryBtn}>
+                  {copy.nav.getStartedForFree}
                 </Link>
               </div>
             </section>

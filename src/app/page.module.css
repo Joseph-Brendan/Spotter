@@ -142,12 +142,19 @@
 }
 
 .heroTitle {
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  line-height: 1.15;
-  font-weight: 700;
+  font-family: var(--typography-display-large-font-family);
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  line-height: 1.1875;
+  font-weight: 500;
+  letter-spacing: var(--typography-display-large-letter-spacing);
   color: var(--color-on-surface);
   margin: 0;
-  letter-spacing: -0.02em;
+  max-width: 680px;
+}
+
+.heroLineBreak {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .heroSubtitle {
@@ -157,12 +164,16 @@
   margin: 0;
 }
 
+.heroSubtitleLine {
+  display: block;
+}
+
 .heroCtaRow {
   display: flex;
   gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  margin-top: -0.5rem;
 }
 
 .linkReset {
