@@ -95,6 +95,26 @@ one was wrong and never says whether the email is registered.
   "Ask the front desk for a temporary password to reset your account."
   "Password changed. You can now log in."
 
+## Form validation
+
+  "This field must not be empty"
+  "Use at least two characters."
+  "Enter at least two names."
+  "Enter a valid email address"
+  "Enter your 6 digit member number."
+  "Please accept the privacy terms to continue."
+  "Complete every field and accept the privacy terms to create your account."
+
+The first is shown inline under any form field the member focused and left
+without typing. The name messages apply to the full name field on sign up. The
+email message is shown live as the member types the sign up email address and
+clears when the format is valid. The member number message applies when the
+sign up member number is not exactly six digits. The privacy terms message is
+shown inline under the checkbox when the member clicks the disabled create
+account button with every field valid but the checkbox unchecked. The create
+account hint is read by a screen reader when the create account button is
+focused while the form is incomplete.
+
 ## Check in
 
   "Type this code at the door"

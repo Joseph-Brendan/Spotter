@@ -46,6 +46,16 @@ export const copy = {
       "Ask the front desk for a temporary password to reset your account.",
     success: "Password changed. You can now log in.",
   },
+  validation: {
+    fieldRequired: "This field must not be empty",
+    nameMinLength: "Use at least two characters.",
+    nameTwoWords: "Enter at least two names.",
+    emailInvalid: "Enter a valid email address",
+    memberNumberInvalid: "Enter your 6 digit member number.",
+    acceptTermsRequired: "Please accept the privacy terms to continue.",
+    createAccountHint:
+      "Complete every field and accept the privacy terms to create your account.",
+  },
   checkin: {
     typeCode: "Type this code at the door",
     expiresIn: (seconds: number | string) => `Expires in ${seconds} seconds`,

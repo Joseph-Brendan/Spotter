@@ -140,7 +140,7 @@ export default function MemberPortal({ member, onLogout }: MemberPortalProps) {
         <span className="text-body-small" style={{ color: "var(--color-on-surface-variant)" }}>
           Need assistance with personal records or waivers?
         </span>
-        <Link href="/reset-password" className={styles.linkReset}>
+        <Link href="/auth?view=reset" className={styles.linkReset}>
           Manage Password
         </Link>
       </div>

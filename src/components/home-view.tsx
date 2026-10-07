@@ -155,7 +155,7 @@ export default function HomeView() {
             ) : (
               <>
                 <Link
-                  href="/signup"
+                  href="/auth?view=signup"
                   className={`${styles.primaryBtn} ${styles.navCta}`}
                 >
                   {copy.nav.getStarted}
@@ -210,7 +210,7 @@ export default function HomeView() {
             </svg>
           </button>
           <Link
-            href="/signup"
+            href="/auth?view=signup"
             className={`${styles.primaryBtn} ${styles.mobileMenuCta}`}
             onClick={() => setMenuOpen(false)}
           >
@@ -248,7 +248,7 @@ export default function HomeView() {
                 </span>
               </p>
               <div className={styles.heroCtaRow}>
-                <Link href="/signup" className={styles.primaryBtn}>
+                <Link href="/auth?view=signup" className={styles.primaryBtn}>
                   {copy.nav.getStartedForFree}
                 </Link>
               </div>
