@@ -205,6 +205,7 @@
   /* Outlines & Borders */
   --color-outline: var(--primitive-color-neutral-variant-80);
   --color-outline-variant: var(--primitive-color-neutral-variant-87);
+  --color-outline-strong: var(--primitive-color-neutral-variant-50); /* Interactive component boundary, 3:1 or better on light surfaces */
 
   /* Backgrounds */
   --color-background: var(--primitive-color-neutral-99);
@@ -227,13 +228,13 @@
   /* ============================================================================
    * 3. EFFECTS & SHADOWS
    * ============================================================================ */
-  /* Elevation / Drop Shadows - Removed per UI design system */
-  --effect-soft-shadow: none;
-  --shadow-soft: none;
-  --effect-medium-shadow: none;
-  --shadow-medium: none;
-  --effect-hard-shadow: none;
-  --shadow-hard: none;
+  /* Elevation / Drop Shadows */
+  --effect-soft-shadow: 1.5px 6px 30px 0px #0044e31f;
+  --shadow-soft: 1.5px 6px 30px 0px #0044e31f;
+  --effect-medium-shadow: 4px 6px 24px 0px #0044e32e;
+  --shadow-medium: 4px 6px 24px 0px #0044e32e;
+  --effect-hard-shadow: 6px 10px 20px 0px #00000033;
+  --shadow-hard: 6px 10px 20px 0px #00000033;
 
   /* ============================================================================
    * 4. TYPOGRAPHY VARIABLES
@@ -251,11 +252,11 @@
 
   /* Typography: display medium */
   --typography-display-medium-font-size: 50px;
-  --typography-display-medium-line-height: 75px;
+  --typography-display-medium-line-height: 58px;
   --typography-display-medium-font-weight: 600;
-  --typography-display-medium-letter-spacing: -3px;
+  --typography-display-medium-letter-spacing: -2.5px;
   --typography-display-medium-font-family: 'DM Sans', var(--font-family-base);
-  --typography-display-medium-font: 600 50px/75px 'DM Sans', var(--font-family-base);
+  --typography-display-medium-font: 600 50px/58px 'DM Sans', var(--font-family-base);
 
   /* Typography: display small */
   --typography-display-small-font-size: 40px;
@@ -286,7 +287,7 @@
   --typography-headline-small-font-size: 24px;
   --typography-headline-small-line-height: 36px;
   --typography-headline-small-font-weight: 500;
-  --typography-headline-small-letter-spacing: -1.45px;
+  --typography-headline-small-letter-spacing: -0.75px;
   --typography-headline-small-font-family: 'DM Sans', var(--font-family-base);
   --typography-headline-small-font: 500 24px/36px 'DM Sans', var(--font-family-base);
 

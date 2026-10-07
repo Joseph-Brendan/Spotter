@@ -1,0 +1,91 @@
+.legalView {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.backButton {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-on-surface-variant);
+}
+
+.backButton:hover {
+  color: var(--color-primary);
+}
+
+.document {
+  width: 100%;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  padding: 2rem 1.75rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.documentHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.title {
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.lastUpdated {
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sectionHeading {
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.paragraph {
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.bullets {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--color-on-surface-variant);
+}
+
+.crossLinkRow {
+  border-top: 1px solid var(--color-outline-variant);
+  padding-top: 1.25rem;
+}
+
+.crossLink {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.crossLink:hover {
+  text-decoration: underline;
+}

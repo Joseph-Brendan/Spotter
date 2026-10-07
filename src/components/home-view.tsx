@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import MemberPortal, { type SessionMember } from "@/components/member-portal";
+import LegalDocumentView, { type LegalView } from "@/components/legal-document";
 import { copy } from "@/lib/copy";
 import styles from "@/app/page.module.css";
 
@@ -27,15 +28,15 @@ const FEATURES = [
     title: "Pay & Renew",
     desc: "Renew subscriptions or clear arrears via Flutterwave. Confirmed payments extend your membership instantly.",
   },
-  {
-    num: "05",
-    title: "Ask The Desk",
-    desc: "When records hold no answer, Spotter names the officer on duty and opens WhatsApp with your question pre-typed.",
-  },
 ];
 
 export default function HomeView() {
   const [member, setMember] = useState<SessionMember | null>(null);
+  const [legalView, setLegalView] = useState<LegalView | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuCloseRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -43,24 +44,77 @@ export default function HomeView() {
       .then((data) => {
         if (data.member) {
           setMember(data.member);
+          setMenuOpen(false);
           document.title = "Member Portal | Spotter";
         }
       })
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const menu = menuRef.current;
+    const menuButton = menuButtonRef.current;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !menu) return;
+
+      const focusable = menu.querySelectorAll<HTMLElement>("a[href], button");
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !menu.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    menuCloseRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+      menuButton?.focus();
+    };
+  }, [menuOpen]);
+
   const handleLogout = async () => {
     await fetch("/api/auth/session", { method: "POST" });
     setMember(null);
+    setMenuOpen(false);
     document.title = "Spotter | Official Gym Member Portal";
+  };
+
+  const openLegalView = (view: LegalView) => {
+    setLegalView(view);
+    window.scrollTo(0, 0);
+  };
+
+  const closeLegalView = () => {
+    setLegalView(null);
+    window.scrollTo(0, 0);
   };
 
   return (
     <div className={styles.pageContainer}>
       {/* Minimalist Top Navbar */}
       <header className={styles.navbar}>
-        <div className={styles.navInner}>
-          <Link href="/" className={styles.brandGroup} aria-label="Spotter">
+        <nav className={styles.navInner} aria-label="Main">
+          <Link href="/" className={styles.brandGroup} aria-label="Spotter" onClick={closeLegalView}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 32 32"
@@ -68,7 +122,7 @@ export default function HomeView() {
               height="32"
               aria-hidden="true"
             >
-              <rect width="32" height="32" rx="4" fill="var(--color-primary, #0044e3)" />
+              <rect width="32" height="32" rx="0" fill="var(--color-primary, #0044e3)" />
               <text
                 x="50%"
                 y="54%"
@@ -99,31 +153,95 @@ export default function HomeView() {
                 </button>
               </div>
             ) : (
-              <Link href="/signup" className={styles.primaryBtn}>
-                {copy.nav.getStarted}
-              </Link>
+              <>
+                <Link
+                  href="/signup"
+                  className={`${styles.primaryBtn} ${styles.navCta}`}
+                >
+                  {copy.nav.getStarted}
+                </Link>
+                <button
+                  type="button"
+                  ref={menuButtonRef}
+                  className={styles.menuButton}
+                  aria-label="Menu"
+                  aria-expanded={menuOpen}
+                  aria-controls="mobile-menu"
+                  onClick={() => setMenuOpen(true)}
+                >
+                  <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                    <path
+                      d="M3 6h18M3 12h18M3 18h18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </>
             )}
           </div>
-        </div>
+        </nav>
       </header>
+
+      {!member && (
+        <div
+          id="mobile-menu"
+          ref={menuRef}
+          className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ""}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+        >
+          <button
+            type="button"
+            ref={menuCloseRef}
+            className={styles.menuClose}
+            aria-label="Close"
+            onClick={() => setMenuOpen(false)}
+          >
+            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+          <Link
+            href="/signup"
+            className={`${styles.primaryBtn} ${styles.mobileMenuCta}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            {copy.nav.getStarted}
+          </Link>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className={styles.mainContent}>
-        {member ? (
+        {legalView ? (
+          <LegalDocumentView
+            view={legalView}
+            onBack={closeLegalView}
+            onSelectView={openLegalView}
+          />
+        ) : member ? (
           /* Active Logged-In Member View */
-          <section aria-label="Member Portal Dashboard">
+          <section>
             <MemberPortal member={member} onLogout={handleLogout} />
           </section>
         ) : (
           /* Minimalist Marketing & App Overview */
           <>
             {/* Minimal Hero */}
-            <section className={styles.heroSection} aria-label="Welcome">
-              <h1 className={styles.heroTitle}>
+            <section className={styles.heroSection} aria-labelledby="home-hero-title">
+              <h1 id="home-hero-title" className={`text-display-medium ${styles.heroTitle}`}>
                 Your Gym. Your Records.{" "}
                 <span className={styles.heroLineBreak}>Instant Access.</span>
               </h1>
-              <p className={styles.heroSubtitle}>
+              <p className={`text-body-large ${styles.heroSubtitle}`}>
                 {copy.marketing.heroSubtitleLead}
                 <span className={styles.heroSubtitleLine}>
                   {copy.marketing.heroSubtitleTail}
@@ -137,34 +255,23 @@ export default function HomeView() {
             </section>
 
             {/* Five MVP Features */}
-            <section className={styles.featuresSection} aria-label="Core Member Features">
+            <section className={styles.featuresSection} aria-labelledby="home-features-title">
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Built For Member Independence</h2>
+                <h2 id="home-features-title" className={`text-headline-small ${styles.sectionTitle}`}>Built For Member Independence</h2>
                 <p className={styles.sectionSubtitle}>
-                  Five core features with zero clutter, zero ads, and instant confirmation.
+                  Zero clutter, zero ads, instant confirmation.
                 </p>
               </div>
 
               <div className={styles.featuresGrid}>
                 {FEATURES.map((feat) => (
                   <article key={feat.num} className={styles.featureCard}>
-                    <span className={styles.featureNum}>{feat.num}</span>
-                    <h3 className={styles.featureName}>{feat.title}</h3>
-                    <p className={styles.featureDesc}>{feat.desc}</p>
+                    <span className={`text-label-large ${styles.featureNum}`}>{feat.num}</span>
+                    <h3 className={`text-title-medium ${styles.featureName}`}>{feat.title}</h3>
+                    <p className={`text-body-medium ${styles.featureDesc}`}>{feat.desc}</p>
                   </article>
                 ))}
               </div>
-            </section>
-
-            {/* Privacy & Trust Banner */}
-            <section className={styles.trustBanner} aria-label="Privacy Notice">
-              <p className={styles.trustText}>
-                <strong className={styles.trustHighlight}>Private by design.</strong>{" "}
-                Your records are accessed only by your session member ID. Never embedded, never searched across other members, and no push notifications or marketing spam.
-              </p>
-              <Link href="/login" className={styles.outlineBtn} style={{ whiteSpace: "nowrap" }}>
-                Access Records &rarr;
-              </Link>
             </section>
           </>
         )}
@@ -177,15 +284,20 @@ export default function HomeView() {
             Spotter &bull; Gym Member System
           </span>
           <div className={styles.footerLinks}>
-            <Link href="/login" className={styles.footerLink}>
-              Log In
-            </Link>
-            <Link href="/signup" className={styles.footerLink}>
-              Sign Up
-            </Link>
-            <Link href="/reset-password" className={styles.footerLink}>
-              Reset Password
-            </Link>
+            <button
+              type="button"
+              onClick={() => openLegalView("privacy")}
+              className={styles.footerLink}
+            >
+              {copy.nav.privacyPolicy}
+            </button>
+            <button
+              type="button"
+              onClick={() => openLegalView("terms")}
+              className={styles.footerLink}
+            >
+              {copy.nav.termsOfService}
+            </button>
           </div>
         </div>
       </footer>

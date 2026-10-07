@@ -2159,6 +2159,11 @@
         }
       }
     },
+    "outline strong": {
+      "description": "Interactive component boundary, 3:1 or better on light surfaces",
+      "type": "color",
+      "value": "{primitives.color palettes.neutral variant.neutralvariant50}"
+    },
     "primary fixed": {
       "description": "",
       "type": "color",
@@ -2519,11 +2524,11 @@
       },
       "letterSpacing": {
         "type": "dimension",
-        "value": -3
+        "value": -2.5
       },
       "lineHeight": {
         "type": "dimension",
-        "value": 75
+        "value": 58
       },
       "paragraphIndent": {
         "type": "dimension",
@@ -2703,7 +2708,7 @@
       },
       "letterSpacing": {
         "type": "dimension",
-        "value": -1.45
+        "value": -0.75
       },
       "lineHeight": {
         "type": "dimension",

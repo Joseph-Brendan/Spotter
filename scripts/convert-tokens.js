@@ -195,16 +195,24 @@ function generateCss(tokens) {
   // 3. EFFECTS / SHADOWS
   // ===========================================================================
   if (tokens.effect) {
-    effectLines.push('  /* Elevation / Drop Shadows - Removed per UI design system */');
+    effectLines.push('  /* Elevation / Drop Shadows */');
     for (const [effectName, token] of Object.entries(tokens.effect)) {
       const effectKebab = toKebabCase(effectName);
       if (token.type === 'custom-shadow' && token.value) {
+        const {
+          offsetX = 0,
+          offsetY = 0,
+          radius = 0,
+          spread = 0,
+          color = 'transparent',
+        } = token.value;
+        const shadowValue = `${offsetX}px ${offsetY}px ${radius}px ${spread}px ${color}`;
         const varName = `--effect-${effectKebab}`;
-        effectLines.push(`  ${varName}: none;`);
+        effectLines.push(`  ${varName}: ${shadowValue};`);
 
         // Also add clean alias e.g. --shadow-soft
         const aliasName = `--shadow-${effectKebab.replace(/-shadow$/, '')}`;
-        effectLines.push(`  ${aliasName}: none;`);
+        effectLines.push(`  ${aliasName}: ${shadowValue};`);
       }
     }
     effectLines.push('');

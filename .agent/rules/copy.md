@@ -144,6 +144,37 @@ Reason: the age of a record is never hidden from the member.
 
   "Get Started"
   "Get Started for Free"
+  "Privacy Policy"
+  "Terms of Service"
+
+The two legal labels are the footer links. Each matches a document title below.
+
+## Legal pages
+
+The privacy policy and the terms of service are fixed member facing documents.
+Their full text lives in src/lib/copy.ts as `legalCopy` and is rendered as
+views on the home page, opened from the footer. Treat every sentence in them as
+a fixed string: do not reword one without the review a change to any string in
+this file gets.
+
+The facts below are fixed by the PRD and rules/privacy.md. No edit may
+contradict them.
+
+- The gym is the data controller. The developer is a processor. Both documents
+  say this. The Nigeria Data Protection Act 2023 grounds it.
+- Retention. Attendance, question logs, access logs and check in codes: twenty
+  four months. Payment records and receipts: seven years. Member identity
+  records: while active, and twenty four months after cancellation.
+- A check in records a claimed arrival. It is not proof of presence, and the
+  app does not open the door.
+- The terms list the never answer categories: another member, medical, whether
+  the door will open right now, refunds, waivers, discounts and cancellation
+  decisions, staff conduct.
+- Payments go through Flutterwave. Only a confirmed payment extends membership.
+  Nothing is billed automatically.
+- The privacy policy names the Nigeria Data Protection Commission and the
+  rights under the Nigeria Data Protection Act 2023.
+- Governing law: the laws of the Federal Republic of Nigeria.
 
 ## Marketing
 

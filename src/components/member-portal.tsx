@@ -32,10 +32,10 @@ export default function MemberPortal({ member, onLogout }: MemberPortalProps) {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
 
   return (
-    <div className={styles.dashboardCard} aria-label="Member Dashboard">
+    <section className={styles.dashboardCard} aria-labelledby="member-portal-title">
       <div className={styles.memberHeader}>
         <div>
-          <h2 className="text-title-large" style={{ margin: 0 }}>
+          <h2 id="member-portal-title" className="text-title-large" style={{ margin: 0 }}>
             {member.name}
           </h2>
           <span className="text-body-small" style={{ color: "var(--color-on-surface-variant)" }}>
@@ -118,6 +118,12 @@ export default function MemberPortal({ member, onLogout }: MemberPortalProps) {
           ))}
         </div>
 
+        <p className={styles.srOnly} role="status">
+          {selectedQuestion
+            ? `${selectedQuestion} ${copy.refusals.records}`
+            : ""}
+        </p>
+
         {selectedQuestion && (
           <div className={styles.bannerNotice}>
             <span className="text-label-medium" style={{ fontWeight: 700, color: "var(--color-on-surface)" }}>
@@ -138,6 +144,6 @@ export default function MemberPortal({ member, onLogout }: MemberPortalProps) {
           Manage Password
         </Link>
       </div>
-    </div>
+    </section>
   );
 }
