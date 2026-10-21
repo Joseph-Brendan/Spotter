@@ -6,8 +6,12 @@ import {
   reserveMemberNumberAction,
 } from "@/app/staff/actions";
 import { copy } from "@/lib/copy";
-import type { ReserveMemberNumberActionState } from "@/types/staff";
+import type {
+  MembershipManagementData,
+  ReserveMemberNumberActionState,
+} from "@/types/staff";
 import styles from "@/app/staff/staff.module.css";
+import MembershipManagement from "./membership-management";
 
 const INITIAL_STATE: ReserveMemberNumberActionState = { status: "idle" };
 
@@ -17,11 +21,13 @@ interface StaffDashboardProps {
     role: string;
   };
   latestMemberNumber: string | null;
+  membershipManagement: MembershipManagementData | null;
 }
 
 export default function StaffDashboard({
   staff,
   latestMemberNumber,
+  membershipManagement,
 }: StaffDashboardProps) {
   const [state, formAction, pending] = useActionState(
     reserveMemberNumberAction,
@@ -54,9 +60,6 @@ export default function StaffDashboard({
           aria-labelledby="staff-dashboard-title"
         >
           <header className={styles.cardHeader}>
-            <span className={`${styles.eyebrow} text-label-large`}>
-              Front desk
-            </span>
             <h1
               id="staff-dashboard-title"
               className={`text-title-large ${styles.title}`}
@@ -156,6 +159,10 @@ export default function StaffDashboard({
             )}
           </div>
         </section>
+
+        {membershipManagement && (
+          <MembershipManagement data={membershipManagement} />
+        )}
       </div>
     </main>
   );

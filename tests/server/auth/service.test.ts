@@ -69,6 +69,32 @@ describe.skipIf(!hasTestDatabase)("auth service", () => {
     await prisma.gym.deleteMany();
   });
 
+  it("does not create a member when sign up has no matching member record", async () => {
+    await prisma.gym.create({
+      data: {
+        name: "Test Gym",
+        timezone: "Africa/Lagos",
+        openingTime: "06:00",
+        closingTime: "22:00",
+        graceDays: 7,
+      },
+    });
+
+    const result = await signUpMember({
+      name: "Unregistered Person",
+      email: "unregistered@example.com",
+      password: "safe-password-123",
+      memberNumber: "999999",
+      acceptedPrivacy: true,
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: copy.signup.memberNumberNotFound,
+    });
+    expect(await prisma.member.count()).toBe(0);
+  });
+
   it("fails sign up for a member number that already has an account and writes nothing", async () => {
     const passwordHash = await hash("original-password");
     const { member } = await createGymWithMember({

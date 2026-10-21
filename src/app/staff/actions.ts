@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { copy } from "@/lib/copy";
 import { PERMISSIONS } from "@/lib/permissions";
@@ -13,13 +14,61 @@ import {
 } from "@/server/auth/validation";
 import { sendMemberNumberEmail } from "@/server/email/member-number-email";
 import { reserveMemberNumber } from "@/server/membership/member-numbers";
+import {
+  createMemberRecord,
+  createMembershipPlan,
+  MembershipManagementError,
+  updateMemberRecord,
+  updateMembershipPlan,
+} from "@/server/membership/management";
+import {
+  createMemberSchema,
+  createMembershipPlanSchema,
+  updateMemberSchema,
+  updateMembershipPlanSchema,
+} from "@/server/membership/validation";
 import type {
+  ManagementActionState,
   ReserveMemberNumberActionState,
   StaffLoginActionState,
 } from "@/types/staff";
 
 function requestIp(headerStore: Headers): string | undefined {
   return headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined;
+}
+
+async function requireMembershipManager(): Promise<
+  | { gymId: string; staffId: string }
+  | ManagementActionState
+> {
+  const session = await getStaffSession();
+
+  if (!session) {
+    redirect("/staff/login");
+  }
+
+  if (!staffCan(session, PERMISSIONS.MEMBERSHIP_MANAGE)) {
+    return { status: "error", error: copy.staff.noPermission };
+  }
+
+  return { gymId: session.gymId, staffId: session.staffId };
+}
+
+function managementError(error: unknown): string {
+  if (error instanceof MembershipManagementError) {
+    switch (error.code) {
+      case "MEMBER_NUMBER_TAKEN":
+        return copy.staff.memberNumberTaken;
+      case "MEMBER_NOT_FOUND":
+        return copy.staff.memberNotFound;
+      case "PLAN_TIER_TAKEN":
+        return copy.staff.planTierTaken;
+      case "PLAN_NOT_FOUND":
+        return copy.staff.planNotFound;
+    }
+  }
+
+  return copy.staff.managementUnavailable;
 }
 
 export async function loginStaffAction(
@@ -117,5 +166,133 @@ export async function reserveMemberNumberAction(
     };
   } catch {
     return { status: "error", error: copy.staff.reserveUnavailable };
+  }
+}
+
+export async function createMemberAction(
+  previousState: ManagementActionState,
+  formData: FormData
+): Promise<ManagementActionState> {
+  void previousState;
+  const manager = await requireMembershipManager();
+
+  if ("status" in manager) {
+    return manager;
+  }
+
+  const parsed = createMemberSchema.safeParse({
+    name: formData.get("name"),
+    memberNumber: formData.get("memberNumber"),
+    phone: formData.get("phone"),
+    tier: formData.get("tier"),
+    expiryDate: formData.get("expiryDate"),
+    openingBalanceKobo: formData.get("openingBalanceKobo"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", error: copy.staff.managementInvalid };
+  }
+
+  try {
+    await createMemberRecord(manager.gymId, manager.staffId, parsed.data);
+    revalidatePath("/staff");
+    return { status: "success", message: copy.staff.memberCreated };
+  } catch (error) {
+    return { status: "error", error: managementError(error) };
+  }
+}
+
+export async function updateMemberAction(
+  previousState: ManagementActionState,
+  formData: FormData
+): Promise<ManagementActionState> {
+  void previousState;
+  const manager = await requireMembershipManager();
+
+  if ("status" in manager) {
+    return manager;
+  }
+
+  const parsed = updateMemberSchema.safeParse({
+    id: formData.get("id"),
+    name: formData.get("name"),
+    memberNumber: formData.get("memberNumber"),
+    phone: formData.get("phone"),
+    tier: formData.get("tier"),
+    expiryDate: formData.get("expiryDate"),
+    openingBalanceKobo: formData.get("openingBalanceKobo"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", error: copy.staff.managementInvalid };
+  }
+
+  try {
+    await updateMemberRecord(manager.gymId, manager.staffId, parsed.data);
+    revalidatePath("/staff");
+    return { status: "success", message: copy.staff.memberUpdated };
+  } catch (error) {
+    return { status: "error", error: managementError(error) };
+  }
+}
+
+export async function createMembershipPlanAction(
+  previousState: ManagementActionState,
+  formData: FormData
+): Promise<ManagementActionState> {
+  void previousState;
+  const manager = await requireMembershipManager();
+
+  if ("status" in manager) {
+    return manager;
+  }
+
+  const parsed = createMembershipPlanSchema.safeParse({
+    tier: formData.get("tier"),
+    priceKobo: formData.get("priceKobo"),
+    durationDays: formData.get("durationDays"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", error: copy.staff.managementInvalid };
+  }
+
+  try {
+    await createMembershipPlan(manager.gymId, parsed.data);
+    revalidatePath("/staff");
+    return { status: "success", message: copy.staff.planCreated };
+  } catch (error) {
+    return { status: "error", error: managementError(error) };
+  }
+}
+
+export async function updateMembershipPlanAction(
+  previousState: ManagementActionState,
+  formData: FormData
+): Promise<ManagementActionState> {
+  void previousState;
+  const manager = await requireMembershipManager();
+
+  if ("status" in manager) {
+    return manager;
+  }
+
+  const parsed = updateMembershipPlanSchema.safeParse({
+    id: formData.get("id"),
+    tier: formData.get("tier"),
+    priceKobo: formData.get("priceKobo"),
+    durationDays: formData.get("durationDays"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", error: copy.staff.managementInvalid };
+  }
+
+  try {
+    await updateMembershipPlan(manager.gymId, parsed.data);
+    revalidatePath("/staff");
+    return { status: "success", message: copy.staff.planUpdated };
+  } catch (error) {
+    return { status: "error", error: managementError(error) };
   }
 }

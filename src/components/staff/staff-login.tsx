@@ -45,9 +45,6 @@ export default function StaffLogin() {
       <div className={styles.loginShell}>
         <section className={styles.card} aria-labelledby="staff-login-title">
           <header className={styles.cardHeader}>
-            <span className={`${styles.eyebrow} text-label-large`}>
-              Front desk
-            </span>
             <h1
               id="staff-login-title"
               className={`text-title-large ${styles.title}`}
