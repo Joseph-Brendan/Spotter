@@ -123,3 +123,7 @@ These are load bearing and must not be weakened:
 - `docs/spotter-prd-v3.md` — the product requirements
 - `AGENTS.md` — scope, invariants and how to work in the repo
 - `rules/` — commands, structure, schema, auth, retrieval, AI, check in, payments, privacy, client, jobs, copy, env, CI
+
+## How can we see the rules.md, etc
+
+How can we find the agent folder and rules.md file.
