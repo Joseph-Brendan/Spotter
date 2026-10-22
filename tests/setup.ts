@@ -7,7 +7,9 @@ if (existsSync(envPath)) {
   process.loadEnvFile(envPath);
 }
 
-process.env.STAFF_SESSION_SECRET ??= "test-staff-session-secret";
+process.env.DATABASE_URL ??= "postgresql://postgres:postgres@localhost:5432/spotter_test";
+process.env.SESSION_SECRET ??= "test-session-secret-that-is-long-enough-32-chars";
+process.env.STAFF_SESSION_SECRET ??= "test-staff-session-secret-different-32-chars";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 

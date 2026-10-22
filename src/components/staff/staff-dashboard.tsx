@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import {
   logoutStaffAction,
   reserveMemberNumberAction,
@@ -82,11 +83,22 @@ export default function StaffDashboard({
                 </span>
               </div>
 
-              <form action={logoutStaffAction} className={styles.logoutForm}>
-                <button type="submit" className={styles.secondaryButton}>
-                  {copy.staff.signOut}
-                </button>
-              </form>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                {staff.role === "OWNER" && (
+                  <Link
+                    href="/owner/review"
+                    className={styles.secondaryButton}
+                    style={{ textDecoration: "none" }}
+                  >
+                    Owner Review
+                  </Link>
+                )}
+                <form action={logoutStaffAction} className={styles.logoutForm}>
+                  <button type="submit" className={styles.secondaryButton}>
+                    {copy.staff.signOut}
+                  </button>
+                </form>
+              </div>
             </div>
 
             {reservedNumber && (

@@ -94,6 +94,7 @@ model Gym {
   plans       MembershipPlan[]
   cards       Card[]
   memberNumberReservations MemberNumberReservation[]
+  reviewSnapshots          OwnerReviewSnapshot[]
 }
 
 model Role {
@@ -463,6 +464,7 @@ model AnswerAudit {
   auditedAt     DateTime    @default(now())
 
   @@index([auditedAt])
+  @@index([questionLogId])
 }
 
 // PRIVATE. Written on every private read.
@@ -474,4 +476,28 @@ model PrivateAccessLog {
   createdAt       DateTime @default(now())
 
   @@index([sessionMemberId, targetMemberId])
+}
+
+model OwnerReviewSnapshot {
+  id                           String   @id @default(cuid())
+  gymId                        String?
+  gym                          Gym?     @relation(fields: [gymId], references: [id])
+  computedAt                   DateTime @default(now())
+
+  // Fast pre-computed summary counts
+  wrongAnswersCount            Int      @default(0)
+  unansweredCount              Int      @default(0)
+  blockedUngroundedCount       Int      @default(0)
+  abandonedPaymentsCount        Int      @default(0)
+  overdueCardsCount            Int      @default(0)
+  privacyExceptionsCount       Int      @default(0)
+  checkInSpikeDaysCount        Int      @default(0)
+  excessiveMemberCheckInsCount Int      @default(0)
+
+  // Pre-computed snapshot payload storing full anomaly listings
+  data                         Json
+
+  createdAt                    DateTime @default(now())
+
+  @@index([gymId, computedAt])
 }

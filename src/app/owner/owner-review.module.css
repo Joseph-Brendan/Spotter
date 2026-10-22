@@ -1,0 +1,682 @@
+/* ==============================================================================
+   OWNER REVIEW & ANOMALY DASHBOARD STYLES
+   Adheres to Spotter Design Tokens & CSS Variables
+   ============================================================================== */
+
+.page {
+  min-height: 100vh;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-family-base);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==============================================================================
+   SIMULATION BANNER
+   ============================================================================== */
+.simulationBanner {
+  background-color: var(--color-tertiary-container);
+  border-bottom: 2px solid var(--color-tertiary);
+  color: var(--color-on-tertiary-container);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-soft);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.simulationContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.simulationIcon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.simulationText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.simulationTitle {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-on-tertiary-container);
+}
+
+.simulationDescription {
+  font-size: 13px;
+  color: var(--color-on-tertiary-container);
+  line-height: 1.4;
+}
+
+.simulationBadge {
+  background-color: var(--color-tertiary);
+  color: var(--color-on-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ==============================================================================
+   HEADER & NAVIGATION
+   ============================================================================== */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface);
+}
+
+.brandGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.roleBadge {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navLink {
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-outline-variant);
+  transition: all 0.2s ease;
+}
+
+.navLink:hover {
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.sweepButton {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.sweepButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sweepButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* ==============================================================================
+   DASHBOARD SHELL
+   ============================================================================== */
+.container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-on-surface);
+}
+
+.subtitle {
+  color: var(--color-on-surface-variant);
+  max-width: 700px;
+}
+
+.snapshotMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface-container);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.liveIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+}
+
+/* ==============================================================================
+   WEEKLY ANSWER AUDIT SECTION
+   ============================================================================== */
+.auditSection {
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.auditHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.auditTitleGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.auditSectionTitle {
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-on-surface);
+}
+
+.auditSubtitle {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  margin-top: 4px;
+}
+
+.auditControls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.auditProgressWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.auditProgressText {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  display: flex;
+  justify-content: space-between;
+}
+
+.progressBarTrack {
+  height: 6px;
+  background-color: var(--color-surface-container-highest);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.shuffleButton {
+  background: transparent;
+  border: 1px solid var(--color-outline);
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shuffleButton:hover {
+  background-color: var(--color-surface-container);
+}
+
+.auditGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 16px;
+}
+
+.auditCard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auditCard:hover {
+  border-color: var(--color-outline);
+  box-shadow: var(--shadow-soft);
+}
+
+.auditCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.auditMemberBadge {
+  font-weight: 600;
+  background-color: var(--color-surface-container);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.auditQuestionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auditQuestionText {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-on-surface);
+}
+
+.auditAnswerBox {
+  background-color: var(--color-surface-container-low);
+  border-left: 3px solid var(--color-primary);
+  padding: 10px 12px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant);
+}
+
+.auditCardMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+}
+
+.auditActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.auditVerdictBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.verdictCorrect {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.verdictWrong {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border: 1px solid var(--color-error);
+}
+
+.verdictPending {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
+
+.auditButtonRow {
+  display: flex;
+  gap: 8px;
+}
+
+.btnCorrect {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btnCorrect:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btnWrong {
+  background-color: var(--color-error);
+  color: var(--color-on-error);
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btnWrong:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* ==============================================================================
+   METRIC SUMMARY GRID
+   ============================================================================== */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.metricCard {
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 10px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-outline);
+  box-shadow: var(--shadow-medium);
+}
+
+.metricCardActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-container);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.metricCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metricTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metricBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.metricBadgeNeutral {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
+
+.metricBadgeAlert {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border: 1px solid var(--color-error);
+}
+
+.metricBadgeWarning {
+  background-color: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.metricValue {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-on-surface);
+  line-height: 1;
+}
+
+.metricDesc {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  line-height: 1.35;
+}
+
+/* ==============================================================================
+   REVIEW TABLES & DETAIL SECTIONS
+   ============================================================================== */
+.tableSection {
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.tableSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.tabRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-bottom: 10px;
+}
+
+.tabButton {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabButton:hover {
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.tabButtonActive {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary) !important;
+}
+
+.tabPill {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.dataTable th {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  white-space: nowrap;
+}
+
+.dataTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+  vertical-align: top;
+}
+
+.dataTable tr:last-child td {
+  border-bottom: none;
+}
+
+.dataTable tr:hover td {
+  background-color: var(--color-surface-container);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.emptyIcon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.privacyAlertRow {
+  background-color: var(--color-error-container);
+}
+
+.privacyAlertBadge {
+  background-color: var(--color-error);
+  color: var(--color-on-error);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badgeTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
+
+.badgeTagDanger {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border: 1px solid var(--color-error);
+}
+
+.badgeTagWarning {
+  background-color: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+  border: 1px solid var(--color-outline-variant);
+}

@@ -10,7 +10,7 @@ const SESSION_MAX_AGE_SECONDS = 90 * 24 * 60 * 60;
 
 const STAFF_SESSION_COOKIE = "spotter_staff_session";
 const STAFF_SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
-const STAFF_SESSION_PATH = "/staff";
+const STAFF_SESSION_PATH = "/";
 
 export interface SessionData {
   memberId: string;
