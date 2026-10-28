@@ -11,6 +11,7 @@ datasource db {
 enum Tier {
   BASIC
   PREMIUM
+  DIAMOND
 }
 
 enum PaymentPurpose {
@@ -129,11 +130,11 @@ model Member {
   id                    String             @id @default(cuid())
   gymId                 String
   gym                   Gym                @relation(fields: [gymId], references: [id])
-  name                  String
+  name                  String?
   memberNumber          String
   phone                 String?
   tier                  Tier               @default(BASIC)
-  expiryDate            DateTime
+  expiryDate            DateTime?
   cancelledAt           DateTime?
   email                 String?            @unique
   passwordHash          String?
@@ -157,7 +158,7 @@ model Member {
   checkInCodes          CheckInCode[]
   ledgerEntries         LedgerEntry[]
   payments              Payment[]
-  paymentAttempts       PaymentAttempt[]
+  paymentLogs           PaymentLog[]
   membershipChanges     MembershipChange[]
   questionLogs          QuestionLog[]
 
@@ -345,8 +346,9 @@ model CheckIn {
   @@unique([memberId, date])
 }
 
-// PRIVATE. Fetched by exact member ID only, never searched across members.
-model PaymentAttempt {
+// PRIVATE. Fetched by exact member ID only, except the payment webhook lookup
+// by server generated reference. Never searched across members.
+model PaymentLog {
   id             String         @id @default(cuid())
   memberId       String
   member         Member         @relation(fields: [memberId], references: [id])
@@ -356,6 +358,21 @@ model PaymentAttempt {
   amountKobo     Int
   currency       String         @default("NGN")
   status         PaymentStatus  @default(PENDING)
+
+  // Journey: gateway initialisation.
+  gatewayInitiatedAt DateTime?
+  checkoutUrl        String?
+
+  // Journey: webhook and gateway verification evidence.
+  webhookReceivedAt    DateTime?
+  gatewayTransactionId String?
+  gatewayReference     String?
+  gatewayStatus        String?
+  verifiedAt           DateTime?
+  verifiedAmountKobo   Int?
+  verifiedCurrency     String?
+  verificationError    String?
+
   failureReason  String?
   resolvedAt     DateTime?
   payment        Payment?
@@ -371,7 +388,7 @@ model Payment {
   memberId          String
   member            Member             @relation(fields: [memberId], references: [id])
   attemptId         String?            @unique
-  attempt           PaymentAttempt?    @relation(fields: [attemptId], references: [id])
+  attempt           PaymentLog?        @relation(fields: [attemptId], references: [id])
   reference         String             @unique
   gatewayReference  String?            @unique
   amountKobo        Int

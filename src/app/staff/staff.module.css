@@ -198,6 +198,53 @@
   box-shadow: none;
 }
 
+.success {
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.ownerNotice {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border: 1px solid var(--color-primary);
+  padding: 0.85rem 1rem;
+  font-size: 0.9375rem;
+}
+
+.planForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-low);
+}
+
+.planFormHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: var(--color-on-surface);
+}
+
+.planFormHeader span:last-child {
+  color: var(--color-on-surface-variant);
+}
+
+.planFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 520px) {
+  .planFields {
+    grid-template-columns: 1fr;
+  }
+}
+
 .result {
   background-color: var(--color-primary-container);
   color: var(--color-on-primary-container);

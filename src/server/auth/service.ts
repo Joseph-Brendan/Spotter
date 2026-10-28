@@ -26,7 +26,7 @@ const ACCOUNT_LOCK_MS = 15 * 60 * 1000;
 interface MemberIdentity {
   id: string;
   email: string | null;
-  name: string;
+  name: string | null;
   memberNumber: string;
   emailVerifiedAt: Date | null;
 }
@@ -35,7 +35,7 @@ function toSessionData(member: MemberIdentity, mustChangePassword: boolean): Ses
   return {
     memberId: member.id,
     email: member.email,
-    name: member.name,
+    name: member.name ?? "",
     memberNumber: member.memberNumber,
     mustChangePassword,
     emailVerified: member.emailVerifiedAt !== null,
@@ -365,4 +365,24 @@ export async function logoutMember(): Promise<void> {
  */
 export async function getCurrentMember(): Promise<SessionData | null> {
   return await getMemberSession();
+}
+
+export async function verifyMemberPassword(
+  memberId: string,
+  password: string
+): Promise<boolean> {
+  if (!password) {
+    return false;
+  }
+
+  const member = await prisma.member.findUnique({
+    where: { id: memberId },
+    select: { passwordHash: true },
+  });
+
+  if (!member?.passwordHash) {
+    return false;
+  }
+
+  return verify(member.passwordHash, password);
 }

@@ -6,7 +6,11 @@ import {
   reserveMemberNumberAction,
 } from "@/app/staff/actions";
 import { copy } from "@/lib/copy";
-import type { ReserveMemberNumberActionState } from "@/types/staff";
+import MembershipPlans from "@/components/staff/membership-plans";
+import type {
+  ReserveMemberNumberActionState,
+  StaffMembershipPlan,
+} from "@/types/staff";
 import styles from "@/app/staff/staff.module.css";
 
 const INITIAL_STATE: ReserveMemberNumberActionState = { status: "idle" };
@@ -17,11 +21,15 @@ interface StaffDashboardProps {
     role: string;
   };
   latestMemberNumber: string | null;
+  plans: StaffMembershipPlan[];
+  canManagePlans: boolean;
 }
 
 export default function StaffDashboard({
   staff,
   latestMemberNumber,
+  plans,
+  canManagePlans,
 }: StaffDashboardProps) {
   const [state, formAction, pending] = useActionState(
     reserveMemberNumberAction,
@@ -49,6 +57,8 @@ export default function StaffDashboard({
       </div>
 
       <div className={styles.shell}>
+        {canManagePlans && <MembershipPlans plans={plans} />}
+
         <section
           className={styles.card}
           aria-labelledby="staff-dashboard-title"

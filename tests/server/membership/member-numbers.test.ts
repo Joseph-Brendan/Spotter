@@ -74,6 +74,26 @@ describe.skipIf(!hasTestDatabase)("member number reservation", () => {
       true
     );
 
+    const members = await prisma.member.findMany({
+      where: { gymId: gym.id },
+      orderBy: { createdAt: "asc" },
+    });
+
+    expect(members).toHaveLength(2);
+    expect(members.map((row) => row.memberNumber).sort()).toEqual(
+      [first.memberNumber, second.memberNumber].sort()
+    );
+    expect(
+      members.every(
+        (row) =>
+          row.name === null &&
+          row.expiryDate === null &&
+          row.email === null &&
+          row.passwordHash === null &&
+          row.accountCreatedAt === null
+      )
+    ).toBe(true);
+
     const latest = await getLatestReservation({
       gymId: gym.id,
       staffId: staff.id,

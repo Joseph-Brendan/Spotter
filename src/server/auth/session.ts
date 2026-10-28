@@ -139,7 +139,7 @@ function buildSessionData(session: {
   member: {
     id: string;
     email: string | null;
-    name: string;
+    name: string | null;
     memberNumber: string;
     emailVerifiedAt: Date | null;
   };
@@ -147,7 +147,7 @@ function buildSessionData(session: {
   return {
     memberId: session.member.id,
     email: session.member.email,
-    name: session.member.name,
+    name: session.member.name ?? "",
     memberNumber: session.member.memberNumber,
     mustChangePassword: session.mustChangePassword,
     emailVerified: session.member.emailVerifiedAt !== null,

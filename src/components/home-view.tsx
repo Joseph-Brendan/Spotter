@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import MemberPortal from "@/components/member-portal";
 import LegalDocumentView, { type LegalView } from "@/components/legal-document";
 import { useLogout, useSession } from "@/hooks/use-auth";
@@ -32,7 +33,8 @@ const FEATURES = [
 ];
 
 export default function HomeView() {
-  const { member } = useSession();
+  const { member, billing, billingError } = useSession();
+  const router = useRouter();
   const [legalView, setLegalView] = useState<LegalView | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutError, setLogoutError] = useState("");
@@ -45,6 +47,12 @@ export default function HomeView() {
       ? "Member Portal | Spotter"
       : "Spotter | Official Gym Member Portal";
   }, [member]);
+
+  useEffect(() => {
+    if (member?.mustChangePassword) {
+      router.replace("/auth?view=reset");
+    }
+  }, [member, router]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -232,7 +240,11 @@ export default function HomeView() {
         ) : member ? (
           /* Active Logged-In Member View */
           <section>
-            <MemberPortal member={member} />
+            <MemberPortal
+              member={member}
+              billing={billing}
+              billingError={billingError}
+            />
           </section>
         ) : (
           /* Minimalist Marketing & App Overview */

@@ -5,6 +5,7 @@ import { PERMISSIONS } from "@/lib/permissions";
 import { staffCan } from "@/server/auth/authorization";
 import { getStaffSession } from "@/server/auth/session";
 import { getLatestReservation } from "@/server/membership/member-numbers";
+import { listMembershipPlans } from "@/server/membership/plans";
 
 export const metadata: Metadata = {
   title: "Reception desk",
@@ -23,11 +24,17 @@ export default async function StaffPage() {
     gymId: session.gymId,
     staffId: session.staffId,
   });
+  const canManagePlans = session.role === "OWNER";
+  const plans = canManagePlans
+    ? await listMembershipPlans(session.gymId)
+    : [];
 
   return (
     <StaffDashboard
       staff={{ name: session.name, role: session.role }}
       latestMemberNumber={latest?.memberNumber ?? null}
+      plans={plans}
+      canManagePlans={canManagePlans}
     />
   );
 }

@@ -1,8 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { copy } from "@/lib/copy";
+import { parseNairaToKobo } from "@/lib/money";
 import { PERMISSIONS } from "@/lib/permissions";
 import { staffCan } from "@/server/auth/authorization";
 import { getStaffSession } from "@/server/auth/session";
@@ -13,8 +15,10 @@ import {
 } from "@/server/auth/validation";
 import { sendMemberNumberEmail } from "@/server/email/member-number-email";
 import { reserveMemberNumber } from "@/server/membership/member-numbers";
+import { upsertMembershipPlan } from "@/server/membership/plans";
 import type {
   ReserveMemberNumberActionState,
+  SaveMembershipPlanActionState,
   StaffLoginActionState,
 } from "@/types/staff";
 
@@ -58,6 +62,59 @@ export async function logoutStaffAction(formData: FormData): Promise<void> {
   void formData;
   await logoutStaff();
   redirect("/staff/login");
+}
+
+export async function saveMembershipPlanAction(
+  previousState: SaveMembershipPlanActionState,
+  formData: FormData
+): Promise<SaveMembershipPlanActionState> {
+  void previousState;
+
+  const session = await getStaffSession();
+
+  if (!session) {
+    redirect("/staff/login");
+  }
+
+  if (session.role !== "OWNER") {
+    return { status: "error", error: copy.staff.noPermission };
+  }
+
+  const tier = formData.get("tier");
+
+  if (tier !== "BASIC" && tier !== "PREMIUM" && tier !== "DIAMOND") {
+    return { status: "error", error: copy.staff.planFailed };
+  }
+
+  const priceInput = formData.get("price");
+  const priceKobo =
+    typeof priceInput === "string" ? parseNairaToKobo(priceInput) : null;
+
+  if (priceKobo === null || priceKobo <= 0) {
+    return { status: "error", error: copy.staff.planPriceInvalid };
+  }
+
+  const durationInput = formData.get("durationDays");
+  const durationDays =
+    typeof durationInput === "string" ? Number(durationInput) : NaN;
+
+  if (!Number.isInteger(durationDays) || durationDays <= 0) {
+    return { status: "error", error: copy.staff.planDurationInvalid };
+  }
+
+  try {
+    await upsertMembershipPlan({
+      gymId: session.gymId,
+      tier,
+      priceKobo,
+      durationDays,
+    });
+    revalidatePath("/staff");
+    return { status: "success", message: copy.staff.planSaved };
+  } catch (error) {
+    console.error("Failed to save plan:", error);
+    return { status: "error", error: copy.staff.planFailed };
+  }
 }
 
 export async function reserveMemberNumberAction(

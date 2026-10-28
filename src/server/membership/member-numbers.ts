@@ -38,14 +38,22 @@ export async function reserveMemberNumber(
     const memberNumber = generateCandidate();
 
     try {
-      await prisma.memberNumberReservation.create({
-        data: {
-          gymId: input.gymId,
-          memberNumber,
-          email,
-          createdByStaffId: input.staffId,
-        },
-      });
+      await prisma.$transaction([
+        prisma.member.create({
+          data: {
+            gymId: input.gymId,
+            memberNumber,
+          },
+        }),
+        prisma.memberNumberReservation.create({
+          data: {
+            gymId: input.gymId,
+            memberNumber,
+            email,
+            createdByStaffId: input.staffId,
+          },
+        }),
+      ]);
 
       return { success: true, memberNumber };
     } catch (error) {
