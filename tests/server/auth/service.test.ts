@@ -122,6 +122,17 @@ describe.skipIf(!hasTestDatabase)("auth service", () => {
     expect(stored?.name).toBe("New Person");
     expect(stored?.email).toBe("new@example.com");
     expect(stored?.accountCreatedAt).not.toBeNull();
+
+    const reservation = await prisma.memberNumberReservation.findUnique({
+      where: {
+        gymId_memberNumber: {
+          gymId: gym.id,
+          memberNumber: reserved.memberNumber as string,
+        },
+      },
+    });
+
+    expect(reservation?.claimedAt).not.toBeNull();
   });
 
   it("fails sign up for a member number that already has an account and writes nothing", async () => {

@@ -55,6 +55,7 @@ describe.skipIf(!hasTestDatabase)("confirmPayment", () => {
         memberId: member.id,
         idempotencyKey: "confirm-payment-test",
         reference: "confirm-payment-reference",
+        type: "INITIATED",
         purpose: "RENEWAL",
         amountKobo: 1_500_000,
         currency: "NGN",
@@ -76,24 +77,22 @@ describe.skipIf(!hasTestDatabase)("confirmPayment", () => {
       webhookReceivedAt: paidAt,
     };
 
-    await confirmPayment({ paymentLogId: log.id, evidence, paidAt });
-    await confirmPayment({ paymentLogId: log.id, evidence, paidAt });
+    await confirmPayment({ reference: log.reference, evidence, paidAt });
+    await confirmPayment({ reference: log.reference, evidence, paidAt });
 
-    const savedLog = await prisma.paymentLog.findUniqueOrThrow({
-      where: { id: log.id },
+    const confirmedLog = await prisma.paymentLog.findFirstOrThrow({
+      where: { reference: log.reference, type: "CONFIRMED" },
     });
 
-    expect(savedLog.status).toBe("SUCCESS");
-    expect(savedLog.gatewayTransactionId).toBe("1163068");
-    expect(savedLog.gatewayReference).toBe("FLW-M03K-test");
-    expect(savedLog.gatewayStatus).toBe("successful");
-    expect(savedLog.verifiedAmountKobo).toBe(1_500_000);
-    expect(savedLog.verifiedCurrency).toBe("NGN");
-    expect(savedLog.verifiedAt).not.toBeNull();
-    expect(savedLog.resolvedAt).not.toBeNull();
+    expect(confirmedLog.status).toBe("SUCCESS");
+    expect(confirmedLog.gatewayTransactionId).toBe("1163068");
+    expect(confirmedLog.gatewayReference).toBe("FLW-M03K-test");
+    expect(confirmedLog.gatewayStatus).toBe("successful");
+    expect(confirmedLog.reportedAmountKobo).toBe(1_500_000);
+    expect(confirmedLog.reportedCurrency).toBe("NGN");
 
     const payment = await prisma.payment.findUniqueOrThrow({
-      where: { attemptId: log.id },
+      where: { attemptId: confirmedLog.id },
     });
 
     expect(payment.amountKobo).toBe(1_500_000);
@@ -130,7 +129,7 @@ describe.skipIf(!hasTestDatabase)("confirmPayment", () => {
 
     await expect(
       confirmPayment({
-        paymentLogId: log.id,
+        reference: log.reference,
         evidence: {
           gatewayTransactionId: "1163069",
           gatewayReference: "FLW-M03K-test-mismatch",
@@ -145,11 +144,11 @@ describe.skipIf(!hasTestDatabase)("confirmPayment", () => {
 
     expect(await prisma.payment.count()).toBe(0);
 
-    const savedLog = await prisma.paymentLog.findUniqueOrThrow({
-      where: { id: log.id },
+    const confirmedCount = await prisma.paymentLog.count({
+      where: { reference: log.reference, type: "CONFIRMED" },
     });
 
-    expect(savedLog.status).toBe("PENDING");
+    expect(confirmedCount).toBe(0);
   });
 
   it("refuses a gateway status that is not successful", async () => {
@@ -157,7 +156,7 @@ describe.skipIf(!hasTestDatabase)("confirmPayment", () => {
 
     await expect(
       confirmPayment({
-        paymentLogId: log.id,
+        reference: log.reference,
         evidence: {
           gatewayTransactionId: "1163070",
           gatewayReference: "FLW-M03K-test-failed",

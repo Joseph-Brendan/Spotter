@@ -15,7 +15,7 @@ export interface PaymentVerificationEvidence {
 }
 
 export interface ConfirmPaymentInput {
-  paymentLogId: string;
+  reference: string;
   evidence: PaymentVerificationEvidence;
   paidAt?: Date;
   simulated?: boolean;
@@ -26,8 +26,8 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<void> 
     throw new Error("A simulated payment cannot be confirmed in production.");
   }
 
-  const log = await prisma.paymentLog.findUnique({
-    where: { id: input.paymentLogId },
+  const initiatedLog = await prisma.paymentLog.findFirst({
+    where: { reference: input.reference, type: "INITIATED" },
     include: {
       member: {
         select: {
@@ -40,38 +40,76 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<void> 
     },
   });
 
-  if (!log) {
-    throw new Error("Payment log not found.");
+  if (!initiatedLog || !initiatedLog.member) {
+    throw new Error("Initiated payment log not found.");
   }
 
-  if (log.status === "SUCCESS") {
+  const alreadyConfirmed = await prisma.paymentLog.findFirst({
+    where: { reference: input.reference, type: "CONFIRMED" },
+  });
+
+  const existingPayment = await prisma.payment.findUnique({
+    where: { reference: input.reference },
+  });
+
+  if (alreadyConfirmed || existingPayment) {
     return;
   }
 
-  assertVerificationEvidence(log, input.evidence, input.simulated === true);
+  assertVerificationEvidence(
+    {
+      amountKobo: initiatedLog.amountKobo ?? 0,
+      currency: initiatedLog.currency ?? "NGN",
+    },
+    input.evidence,
+    input.simulated === true
+  );
 
-  const member = log.member;
+  const member = initiatedLog.member;
   const now = new Date();
   const paidAt = input.paidAt ?? now;
 
-  let targetTier: Tier = member.tier;
+  let targetTier: Tier | null = member.tier;
   let durationDays = 30;
 
-  if (log.purpose === "RENEWAL") {
-    const plan = await prisma.membershipPlan.findFirst({
-      where: {
-        gymId: member.gymId,
-        priceKobo: log.amountKobo,
-      },
-      select: {
-        tier: true,
-        durationDays: true,
-      },
-    });
+  if (initiatedLog.purpose === "RENEWAL") {
+    if (initiatedLog.planTier && initiatedLog.planDurationDays) {
+      targetTier = initiatedLog.planTier;
+      durationDays = initiatedLog.planDurationDays;
+    } else {
+      const plan = await prisma.membershipPlan.findFirst({
+        where: {
+          gymId: member.gymId,
+          priceKobo: initiatedLog.amountKobo ?? 0,
+        },
+        select: {
+          tier: true,
+          durationDays: true,
+        },
+      });
 
-    if (plan) {
-      targetTier = plan.tier;
-      durationDays = plan.durationDays;
+      if (plan) {
+        targetTier = plan.tier;
+        durationDays = plan.durationDays;
+      } else {
+        await prisma.paymentLog.create({
+          data: {
+            reference: input.reference,
+            memberId: member.id,
+            type: "VERIFY_FAILED",
+            reason: "PLAN_SNAPSHOT_MISSING",
+            status: "PENDING",
+            gatewayTransactionId: input.evidence.gatewayTransactionId,
+            gatewayReference: input.evidence.gatewayReference,
+            gatewayStatus: input.evidence.gatewayStatus,
+            reportedAmountKobo: input.evidence.verifiedAmountKobo,
+            reportedCurrency: input.evidence.verifiedCurrency,
+          },
+        });
+        throw new Error(
+          "Cannot auto-confirm renewal: plan snapshot is missing on payment log."
+        );
+      }
     }
   }
 
@@ -82,35 +120,47 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<void> 
   const newExpiryDate = new Date(baseDate.getTime() + durationDays * DAY_MS);
 
   await prisma.$transaction(async (tx) => {
-    const updated = await tx.paymentLog.updateMany({
-      where: { id: log.id, status: { not: "SUCCESS" } },
+    const existingConfirmed = await tx.paymentLog.findFirst({
+      where: { reference: input.reference, type: "CONFIRMED" },
+    });
+
+    const paymentExists = await tx.payment.findUnique({
+      where: { reference: input.reference },
+    });
+
+    if (existingConfirmed || paymentExists) {
+      return;
+    }
+
+    const confirmedLog = await tx.paymentLog.create({
       data: {
+        reference: input.reference,
+        memberId: member.id,
+        type: "CONFIRMED",
         status: "SUCCESS",
+        purpose: initiatedLog.purpose,
+        amountKobo: initiatedLog.amountKobo,
+        currency: initiatedLog.currency,
+        planTier: targetTier,
+        planDurationDays: durationDays,
         gatewayTransactionId: input.evidence.gatewayTransactionId,
         gatewayReference: input.evidence.gatewayReference,
         gatewayStatus: input.evidence.gatewayStatus,
-        verifiedAt: now,
-        verifiedAmountKobo: input.evidence.verifiedAmountKobo,
-        verifiedCurrency: input.evidence.verifiedCurrency,
-        webhookReceivedAt: input.evidence.webhookReceivedAt,
-        verificationError: null,
-        resolvedAt: now,
+        reportedAmountKobo: input.evidence.verifiedAmountKobo,
+        reportedCurrency: input.evidence.verifiedCurrency,
       },
     });
-
-    if (updated.count === 0) {
-      return;
-    }
 
     const payment = await tx.payment.create({
       data: {
         memberId: member.id,
-        attemptId: log.id,
-        reference: log.reference,
+        attemptId: confirmedLog.id,
+        reference: input.reference,
         gatewayReference: input.evidence.gatewayReference,
-        amountKobo: log.amountKobo,
-        currency: log.currency,
-        purpose: log.purpose,
+        amountKobo:
+          initiatedLog.amountKobo ?? input.evidence.verifiedAmountKobo,
+        currency: initiatedLog.currency ?? input.evidence.verifiedCurrency,
+        purpose: initiatedLog.purpose ?? "RENEWAL",
         channel: "IN_APP",
         paidAt,
       },
@@ -120,14 +170,16 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<void> 
       data: {
         memberId: member.id,
         paymentId: payment.id,
-        amountKobo: -log.amountKobo,
+        amountKobo: -(
+          initiatedLog.amountKobo ?? input.evidence.verifiedAmountKobo
+        ),
         channel: "IN_APP",
-        reason: `${log.purpose} payment (${log.reference})`,
+        reason: `${initiatedLog.purpose} payment (${input.reference})`,
         occurredAt: paidAt,
       },
     });
 
-    if (log.purpose === "RENEWAL") {
+    if (initiatedLog.purpose === "RENEWAL") {
       await tx.member.update({
         where: { id: member.id },
         data: {
@@ -144,7 +196,7 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<void> 
           newTier: targetTier,
           oldExpiryDate: member.expiryDate,
           newExpiryDate,
-          reason: log.reference,
+          reason: input.reference,
         },
       });
     }

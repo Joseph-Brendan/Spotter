@@ -77,7 +77,11 @@ export async function POST(request: Request) {
       success: true,
       checkoutUrl: result.checkoutUrl,
     });
-  } catch {
+  } catch (err) {
+    console.error(
+      "[initiate] Payment initiation failed:",
+      err instanceof Error ? err.message : err
+    );
     return NextResponse.json(
       { error: copy.payments.failedToStart },
       { status: 500 }

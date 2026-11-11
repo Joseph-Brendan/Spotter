@@ -6,8 +6,9 @@ import type { PaymentPurpose } from "@/types/payments";
 
 export interface PaymentQuote {
   purpose: PaymentPurpose;
-  tier: Tier;
+  tier: Tier | null;
   amountKobo: number;
+  durationDays?: number;
 }
 
 export async function getMemberPaymentQuote(
@@ -30,10 +31,13 @@ export async function getMemberPaymentQuote(
   const selectedTier = tier ?? member.tier;
   let amountKobo = 0;
 
-  if (purpose === "RENEWAL") {
+  let durationDays: number | undefined;
+
+  if (purpose === "RENEWAL" && selectedTier) {
     const plan = await getMembershipPlan(member.gymId, selectedTier);
     amountKobo = plan?.priceKobo ?? 0;
-  } else {
+    durationDays = plan?.durationDays;
+  } else if (purpose !== "RENEWAL") {
     const ledger = await prisma.ledgerEntry.aggregate({
       where: { memberId },
       _sum: { amountKobo: true },
@@ -53,5 +57,5 @@ export async function getMemberPaymentQuote(
     return null;
   }
 
-  return { purpose, tier: selectedTier, amountKobo };
+  return { purpose, tier: selectedTier, amountKobo, durationDays };
 }

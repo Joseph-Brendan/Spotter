@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  findUnique: vi.fn(),
-  update: vi.fn(),
-  updateMany: vi.fn(),
+  findFirst: vi.fn(),
+  create: vi.fn(),
+  paymentFindUnique: vi.fn(),
   confirmPayment: vi.fn(),
   fetch: vi.fn(),
 }));
@@ -11,9 +11,11 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/server/db", () => ({
   prisma: {
     paymentLog: {
-      findUnique: mocks.findUnique,
-      update: mocks.update,
-      updateMany: mocks.updateMany,
+      findFirst: mocks.findFirst,
+      create: mocks.create,
+    },
+    payment: {
+      findUnique: mocks.paymentFindUnique,
     },
   },
 }));
@@ -37,6 +39,7 @@ const baseLog = {
   memberId: "member-1",
   idempotencyKey: "idempotency-1",
   reference: "spotter_reference_1",
+  type: "INITIATED" as const,
   purpose: "RENEWAL" as const,
   amountKobo: 3_000_000,
   currency: "NGN",
@@ -78,9 +81,15 @@ describe("processPaymentWebhook", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.stubGlobal("fetch", mocks.fetch);
-    mocks.findUnique.mockResolvedValue(baseLog);
-    mocks.update.mockResolvedValue({});
-    mocks.updateMany.mockResolvedValue({ count: 1 });
+    mocks.findFirst.mockImplementation(
+      ({ where }: { where: { type: string } }) => {
+        if (where.type === "INITIATED") return Promise.resolve(baseLog);
+        if (where.type === "CONFIRMED") return Promise.resolve(null);
+        return Promise.resolve(null);
+      }
+    );
+    mocks.create.mockResolvedValue({});
+    mocks.paymentFindUnique.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -96,17 +105,28 @@ describe("processPaymentWebhook", () => {
       success: false,
       status: 401,
     });
-    expect(mocks.findUnique).not.toHaveBeenCalled();
+    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        type: "WEBHOOK_REJECTED",
+      }),
+    });
   });
 
   it("rejects an unknown reference", async () => {
-    mocks.findUnique.mockResolvedValue(null);
+    mocks.findFirst.mockResolvedValue(null);
 
     expect(
       await processPaymentWebhook("webhook-secret", webhookBody())
     ).toEqual({
       success: false,
       status: 404,
+    });
+    expect(mocks.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        type: "WEBHOOK_REJECTED",
+        reason: "UNKNOWN_REFERENCE",
+      }),
     });
   });
 
@@ -117,12 +137,12 @@ describe("processPaymentWebhook", () => {
     });
 
     expect(result).toEqual({ success: false, status: 400 });
-    expect(mocks.update).toHaveBeenCalledWith({
-      where: { id: baseLog.id },
-      data: {
-        webhookReceivedAt: expect.any(Date),
+    expect(mocks.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        type: "VERIFY_FAILED",
+        reason: "MISSING_TRANSACTION_ID",
         verificationError: "Webhook did not include a gateway transaction id.",
-      },
+      }),
     });
     expect(mocks.confirmPayment).not.toHaveBeenCalled();
   });
@@ -137,15 +157,13 @@ describe("processPaymentWebhook", () => {
 
     expect(result).toEqual({ success: false, status: 400 });
     expect(mocks.confirmPayment).not.toHaveBeenCalled();
-    expect(mocks.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: baseLog.id },
-        data: expect.objectContaining({
-          verificationError:
-            "Gateway verification did not match the payment log.",
-        }),
-      })
-    );
+    expect(mocks.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        type: "VERIFY_MISMATCH",
+        reason: "DETAILS_MISMATCH",
+        verificationError: "Gateway verification did not match the payment log.",
+      }),
+    });
   });
 
   it("confirms only after the gateway verify call matches", async () => {
@@ -166,7 +184,7 @@ describe("processPaymentWebhook", () => {
       }
     );
     expect(mocks.confirmPayment).toHaveBeenCalledWith({
-      paymentLogId: baseLog.id,
+      reference: baseLog.reference,
       evidence: {
         gatewayTransactionId: "123",
         gatewayReference: "flw-ref",
@@ -180,10 +198,14 @@ describe("processPaymentWebhook", () => {
   });
 
   it("does not verify an already successful log again", async () => {
-    mocks.findUnique.mockResolvedValue({
-      ...baseLog,
-      status: "SUCCESS",
-    });
+    mocks.findFirst.mockImplementation(
+      ({ where }: { where: { type: string } }) => {
+        if (where.type === "INITIATED") return Promise.resolve(baseLog);
+        if (where.type === "CONFIRMED")
+          return Promise.resolve({ id: "confirmed-1" });
+        return Promise.resolve(null);
+      }
+    );
 
     const result = await processPaymentWebhook(
       "webhook-secret",
@@ -205,12 +227,12 @@ describe("processPaymentWebhook", () => {
 
     expect(result).toEqual({ success: true, status: 200 });
     expect(mocks.confirmPayment).not.toHaveBeenCalled();
-    expect(mocks.updateMany).toHaveBeenCalledWith({
-      where: { id: baseLog.id, status: { not: "SUCCESS" } },
+    expect(mocks.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
+        type: "GATEWAY_FAILED",
         status: "FAILED",
         gatewayStatus: "failed",
-        failureReason: "Gateway reported the transaction as failed.",
+        verificationError: "Gateway reported the transaction as failed.",
       }),
     });
   });
@@ -225,9 +247,10 @@ describe("processPaymentWebhook", () => {
 
     expect(result).toEqual({ success: true, status: 200 });
     expect(mocks.confirmPayment).not.toHaveBeenCalled();
-    expect(mocks.updateMany).toHaveBeenCalledWith({
-      where: { id: baseLog.id, status: "PENDING" },
+    expect(mocks.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
+        type: "GATEWAY_PENDING",
+        status: "PENDING",
         gatewayStatus: "pending",
       }),
     });
@@ -240,6 +263,6 @@ describe("processPaymentWebhook", () => {
     });
 
     expect(result).toEqual({ success: true, status: 200 });
-    expect(mocks.findUnique).not.toHaveBeenCalled();
+    expect(mocks.findFirst).not.toHaveBeenCalled();
   });
 });

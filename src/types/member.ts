@@ -14,11 +14,12 @@ export interface MembershipPlanSummary {
 
 export interface MemberBillingSummary {
   status: MembershipStatus;
-  storedTier: MemberTier;
+  storedTier: MemberTier | null;
   effectiveTier: MemberTier;
   expiryDate: string | null;
   gymTimezone: string;
   daysTrainedThisMonth: number;
+  checkedInToday: boolean;
   balanceKobo: number;
   fetchedAt: string;
   plan: MembershipPlanSummary | null;

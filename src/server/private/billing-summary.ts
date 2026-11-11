@@ -1,5 +1,6 @@
 import "server-only";
 import { monthRangeInTimeZone } from "@/lib/dates";
+import { dateKeyToDbDate, gymLocalTime } from "@/lib/gym-time";
 import { prisma } from "@/server/db";
 import { listMembershipPlans } from "@/server/membership/plans";
 import { computeMembershipStatus } from "@/server/membership/status";
@@ -31,7 +32,9 @@ export async function getMemberBillingSummary(
   const now = new Date();
   const { start, end } = monthRangeInTimeZone(now, member.gym.timezone);
 
-  const [plans, ledger, daysTrainedThisMonth] = await Promise.all([
+  const { dateKey } = gymLocalTime(now, member.gym.timezone);
+
+  const [plans, ledger, daysTrainedThisMonth, todaysCheckIn] = await Promise.all([
     listMembershipPlans(member.gymId),
     prisma.ledgerEntry.aggregate({
       where: { memberId },
@@ -42,6 +45,10 @@ export async function getMemberBillingSummary(
         memberId,
         date: { gte: start, lt: end },
       },
+    }),
+    prisma.checkIn.findUnique({
+      where: { memberId_date: { memberId, date: dateKeyToDbDate(dateKey) } },
+      select: { id: true },
     }),
   ]);
 
@@ -60,7 +67,9 @@ export async function getMemberBillingSummary(
     graceDays: member.gym.graceDays,
     now,
   });
-  const plan = plans.find((record) => record.tier === member.tier) ?? null;
+  const plan = member.tier
+    ? (plans.find((record) => record.tier === member.tier) ?? null)
+    : null;
 
   return {
     status: state.status,
@@ -69,6 +78,7 @@ export async function getMemberBillingSummary(
     expiryDate: member.expiryDate?.toISOString() ?? null,
     gymTimezone: member.gym.timezone,
     daysTrainedThisMonth,
+    checkedInToday: todaysCheckIn !== null,
     balanceKobo: ledger._sum.amountKobo ?? 0,
     fetchedAt: now.toISOString(),
     plan: plan

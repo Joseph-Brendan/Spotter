@@ -41,7 +41,11 @@ export async function GET() {
   try {
     const billing = await getMemberBillingSummary(member.memberId);
     return NextResponse.json({ member, billing, billingError: false });
-  } catch {
+  } catch (error) {
+    console.error(
+      "Billing summary failed:",
+      error instanceof Error ? error.message : error
+    );
     return NextResponse.json({ member, billing: null, billingError: true });
   }
 }

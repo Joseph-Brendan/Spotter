@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import QueryProvider from "@/components/query-provider";
 import { copy } from "@/lib/copy";
 import "@/styles/tokens.css";
 
@@ -31,7 +30,7 @@ export default function RootLayout({
           color: "var(--color-on-background)",
         }}
       >
-        <QueryProvider>{children}</QueryProvider>
+        {children}
       </body>
     </html>
   );

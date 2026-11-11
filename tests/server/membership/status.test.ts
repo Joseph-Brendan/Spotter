@@ -86,6 +86,18 @@ describe("computeMembershipStatus", () => {
     ).toEqual({ status: "new", effectiveTier: "BASIC" });
   });
 
+  it("treats a member with no stored plan as new on Basic", () => {
+    expect(
+      computeMembershipStatus({
+        tier: null,
+        expiryDate: null,
+        cancelledAt: null,
+        graceDays: 3,
+        now,
+      })
+    ).toEqual({ status: "new", effectiveTier: "BASIC" });
+  });
+
   it("treats a cancelled member with no expiry as cancelled", () => {
     expect(
       computeMembershipStatus({

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { copy } from "@/lib/copy";
 import HomeView from "@/components/home-view";
+import QueryProvider from "@/components/query-provider";
 
 export const metadata: Metadata = {
   title: "Spotter | Official Gym Member Portal",
@@ -28,5 +29,9 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomeView />;
+  return (
+    <QueryProvider>
+      <HomeView />
+    </QueryProvider>
+  );
 }

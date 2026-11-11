@@ -10,7 +10,7 @@ export interface MembershipState {
 }
 
 export function computeMembershipStatus(input: {
-  tier: Tier;
+  tier: Tier | null;
   expiryDate: Date | null;
   cancelledAt: Date | null;
   graceDays: number;
@@ -27,16 +27,17 @@ export function computeMembershipStatus(input: {
   }
 
   const now = input.now ?? new Date();
+  const paidTier = input.tier ?? "BASIC";
 
   if (input.expiryDate.getTime() > now.getTime()) {
-    return { status: "active", effectiveTier: input.tier };
+    return { status: "active", effectiveTier: paidTier };
   }
 
   const graceDays = Math.max(0, input.graceDays);
   const graceEnd = input.expiryDate.getTime() + graceDays * DAY_MS;
 
   if (now.getTime() <= graceEnd) {
-    return { status: "grace", effectiveTier: input.tier };
+    return { status: "grace", effectiveTier: paidTier };
   }
 
   return { status: "expired", effectiveTier: "BASIC" };

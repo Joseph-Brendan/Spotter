@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import MemberAccountMenu from "@/components/member-account-menu";
 import MemberPortal from "@/components/member-portal";
 import LegalDocumentView, { type LegalView } from "@/components/legal-document";
 import { useLogout, useSession } from "@/hooks/use-auth";
@@ -145,18 +146,11 @@ export default function HomeView() {
 
           <div className={styles.navActions}>
             {member ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <span className="text-label-medium" style={{ color: "var(--color-on-surface)" }}>
-                  {member.name}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className={styles.outlineBtn}
-                >
-                  Sign Out
-                </button>
-              </div>
+              <MemberAccountMenu
+                member={member}
+                onSignOut={handleLogout}
+                signingOut={logout.isPending}
+              />
             ) : (
               <>
                 <Link
@@ -225,7 +219,11 @@ export default function HomeView() {
       )}
 
       {/* Main Content Area */}
-      <main className={styles.mainContent}>
+      <main
+        className={`${styles.mainContent}${
+          member && !legalView ? ` ${styles.mainContentMember}` : ""
+        }`}
+      >
         {logoutError && (
           <div className={styles.logoutAlert} role="alert">
             {logoutError}
@@ -238,14 +236,11 @@ export default function HomeView() {
             onSelectView={openLegalView}
           />
         ) : member ? (
-          /* Active Logged-In Member View */
-          <section>
-            <MemberPortal
-              member={member}
-              billing={billing}
-              billingError={billingError}
-            />
-          </section>
+          <MemberPortal
+            member={member}
+            billing={billing}
+            billingError={billingError}
+          />
         ) : (
           /* Minimalist Marketing & App Overview */
           <>
@@ -312,6 +307,11 @@ export default function HomeView() {
             >
               {copy.nav.termsOfService}
             </button>
+            {!member && (
+              <Link href="/staff" className={styles.footerLink}>
+                {copy.nav.staffSignIn}
+              </Link>
+            )}
           </div>
         </div>
       </footer>

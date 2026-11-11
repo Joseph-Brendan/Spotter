@@ -171,18 +171,28 @@ export async function signUpMember(input: SignUpInput): Promise<AuthResult> {
 
   let claimed: { count: number };
   try {
-    claimed = await prisma.member.updateMany({
-      where: { id: member.id, accountCreatedAt: null },
-      data: {
-        name,
-        email,
-        passwordHash,
-        accountCreatedAt: now,
-        passwordChangedAt: now,
-        failedLoginCount: 0,
-        lockedUntil: null,
-      },
-    });
+    [claimed] = await prisma.$transaction([
+      prisma.member.updateMany({
+        where: { id: member.id, accountCreatedAt: null },
+        data: {
+          name,
+          email,
+          passwordHash,
+          accountCreatedAt: now,
+          passwordChangedAt: now,
+          failedLoginCount: 0,
+          lockedUntil: null,
+        },
+      }),
+      prisma.memberNumberReservation.updateMany({
+        where: {
+          gymId: gym.id,
+          memberNumber: member.memberNumber,
+          claimedAt: null,
+        },
+        data: { claimedAt: now },
+      }),
+    ]);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return failure(copy.signup.emailAlreadyRegistered);

@@ -32,6 +32,38 @@ enum PaymentStatus {
   ABANDONED
 }
 
+enum PaymentLogEventType {
+  INITIATED
+  GATEWAY_INIT_SUCCEEDED
+  GATEWAY_INIT_FAILED
+  WEBHOOK_RECEIVED
+  WEBHOOK_REJECTED
+  VERIFY_FAILED
+  VERIFY_MISMATCH
+  GATEWAY_PENDING
+  GATEWAY_FAILED
+  CONFIRMED
+  ABANDONED
+}
+
+enum PaymentLogEventReason {
+  HTTP_ERROR
+  NETWORK_ERROR
+  NO_LINK
+  MISSING_HASH
+  BAD_HASH
+  SECRET_NOT_CONFIGURED
+  BAD_BODY
+  MISSING_TX_REF
+  UNKNOWN_REFERENCE
+  MISSING_TRANSACTION_ID
+  VERIFY_NOT_CONFIGURED
+  VERIFY_REQUEST_FAILED
+  DETAILS_MISMATCH
+  PLAN_SNAPSHOT_MISSING
+  PENDING_TIMEOUT
+}
+
 enum CheckInSource {
   CODE
   MANUAL
@@ -133,7 +165,7 @@ model Member {
   name                  String?
   memberNumber          String
   phone                 String?
-  tier                  Tier               @default(BASIC)
+  tier                  Tier?
   expiryDate            DateTime?
   cancelledAt           DateTime?
   email                 String?            @unique
@@ -228,6 +260,7 @@ model MemberNumberReservation {
   createdByStaffId String
   createdBy        Staff    @relation("MemberNumberReservedBy", fields: [createdByStaffId], references: [id])
   createdAt        DateTime @default(now())
+  claimedAt        DateTime?
 
   @@unique([gymId, memberNumber])
   @@index([createdByStaffId, createdAt])
@@ -346,39 +379,42 @@ model CheckIn {
   @@unique([memberId, date])
 }
 
-// PRIVATE. Fetched by exact member ID only, except the payment webhook lookup
-// by server generated reference. Never searched across members.
+// PRIVATE. Append-only event log of the payment journey.
+// Each step writes an immutable row. Updates and deletes are blocked by a trigger.
 model PaymentLog {
-  id             String         @id @default(cuid())
-  memberId       String
-  member         Member         @relation(fields: [memberId], references: [id])
-  idempotencyKey String         @unique
-  reference      String         @unique
-  purpose        PaymentPurpose
-  amountKobo     Int
-  currency       String         @default("NGN")
-  status         PaymentStatus  @default(PENDING)
+  id                   String                 @id @default(cuid())
+  reference            String
+  idempotencyKey       String?                @unique
+  memberId             String?
+  member               Member?                @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  type                 PaymentLogEventType
+  status               PaymentStatus          @default(PENDING)
+  reason               PaymentLogEventReason?
+
+  // Initiated & plan snapshot details.
+  purpose              PaymentPurpose?
+  amountKobo           Int?
+  currency             String                 @default("NGN")
+  planTier             Tier?
+  planDurationDays     Int?
 
   // Journey: gateway initialisation.
-  gatewayInitiatedAt DateTime?
-  checkoutUrl        String?
+  checkoutUrl          String?
 
   // Journey: webhook and gateway verification evidence.
-  webhookReceivedAt    DateTime?
   gatewayTransactionId String?
   gatewayReference     String?
   gatewayStatus        String?
-  verifiedAt           DateTime?
-  verifiedAmountKobo   Int?
-  verifiedCurrency     String?
+  reportedAmountKobo   Int?
+  reportedCurrency     String?
   verificationError    String?
 
-  failureReason  String?
-  resolvedAt     DateTime?
-  payment        Payment?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  // Link to the confirmed payment receipt (set on CONFIRMED row).
+  payment              Payment?
+  createdAt            DateTime               @default(now())
 
+  @@index([reference, createdAt])
+  @@index([memberId, createdAt])
   @@index([memberId, status])
 }
 
@@ -491,4 +527,18 @@ model PrivateAccessLog {
   createdAt       DateTime @default(now())
 
   @@index([sessionMemberId, targetMemberId])
+}
+
+// PRIVATE. Written on every private read by an owner screen.
+model StaffMemberAccessLog {
+  id           String   @id @default(cuid())
+  staffId      String
+  memberId     String
+  gymId        String
+  functionName String
+  createdAt    DateTime @default(now())
+
+  @@index([staffId, createdAt])
+  @@index([memberId, createdAt])
+  @@index([gymId, createdAt])
 }

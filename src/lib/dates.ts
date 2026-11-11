@@ -42,3 +42,16 @@ export function formatDate(value: string | Date, timeZone: string): string {
     timeZone,
   }).format(date);
 }
+
+export function formatDateTime(value: string | Date, timeZone: string): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+
+  return new Intl.DateTimeFormat("en-NG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone,
+  }).format(date);
+}

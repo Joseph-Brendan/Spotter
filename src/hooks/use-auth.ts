@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { copy } from "@/lib/copy";
 import type { MemberBillingSummary } from "@/types/member";
@@ -149,6 +150,15 @@ export function useSession() {
     billingError: query.data?.billingError ?? false,
     isLoading: query.isPending,
   };
+}
+
+export function useRefreshSession() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: SESSION_KEY }),
+    [queryClient]
+  );
 }
 
 export function useLogin() {
