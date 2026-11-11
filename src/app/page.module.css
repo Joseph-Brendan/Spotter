@@ -316,107 +316,1095 @@
 }
 
 /* Logged-In Member View */
-.dashboardCard {
-  background-color: var(--color-surface-container-lowest);
-  border: 1px solid var(--color-outline-variant);
-  box-shadow: none;
-  padding: 1.75rem;
-  display: flex;
-  flex-direction: column;
+.mainContentMember {
+  padding-top: 1rem;
   gap: 1.5rem;
 }
 
-.memberHeader {
+.memberDashboard {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.memberIntro {
+  display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--color-outline-variant);
-  padding-bottom: 1rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.memberName {
+  margin: 0;
+  color: var(--color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.checkInCard {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-left: 3px solid var(--color-primary);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.checkInTitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.checkInButton {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1rem;
+}
+
+@media (min-width: 640px) {
+  .checkInButton {
+    width: auto;
+    min-width: 220px;
+  }
+}
+
+.checkInMessage {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.checkInCode {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkInDigits {
+  margin: 0.25rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.6em;
+  padding: 0.75rem 0.5rem;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  font-size: clamp(2.75rem, 14vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkInCountdown {
+  margin: 0;
+  text-align: center;
+  color: var(--color-on-surface);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkInHint {
+  margin: 0;
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.checkInCode .checkInHint:empty {
+  display: none;
+}
+
+.checkInQr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.checkInQrImage {
+  display: block;
+  width: min(220px, 70vw);
+  height: auto;
+  aspect-ratio: 1;
+  background-color: #ffffff;
+}
+
+.checkInDone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.checkInDone .checkInHint {
+  text-align: left;
+}
+
+.checkInDoneTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.memberLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .memberLayout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: stretch;
+  }
+
+  /* The ask panel comes first in the markup so it leads on mobile. On wide
+     screens the status column goes back to the left. */
+  .memberLayout > .memberMain {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .memberLayout > .askPanel {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .memberMain > .statusCard {
+    flex: 1 0 auto;
+  }
+
+  .statusCard > .statusActionsQuiet,
+  .statusCard > .statusActions {
+    margin-top: auto;
+  }
+}
+
+.memberMain {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.statusCard {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-top: 3px solid var(--color-primary);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.statusCard[data-status="new"] {
+  border-top-color: var(--color-outline-strong);
+}
+
+.statusCard[data-status="grace"] {
+  border-top-color: var(--color-outline-strong);
+}
+
+.statusCard[data-status="expired"],
+.statusCard[data-status="cancelled"] {
+  border-top-color: var(--color-error, #ba1a1a);
+}
+
+.statusCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.statusHeading {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.statLabel {
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.statusTier {
+  color: var(--color-on-surface);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.statHero {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1rem;
+  background-color: var(--color-surface-container-low);
+  border-left: 3px solid var(--color-primary);
+  margin-bottom: 0.25rem;
+}
+
+/* local() only: the font is used where installed and never downloaded. */
+@font-face {
+  font-family: "Spotter Haas Grotesk";
+  src: local("Neue Haas Grotesk Text Pro 65 Medium"),
+    local("NHaasGroteskTXPro-65Md");
+  font-weight: 500;
+  font-style: normal;
+}
+
+.statHeroValue {
+  margin: 0;
+  font-family: "Spotter Haas Grotesk", var(--font-family-base);
+  color: var(--color-on-surface);
+  font-size: clamp(1.75rem, 7vw, 2.25rem);
+  font-weight: 500;
+  /* Tightens as the viewport and type grow: about -0.03em on a small phone,
+     -0.045em on a wide screen. */
+  letter-spacing: clamp(-0.045em, calc(-0.015em - 0.15vw), -0.025em);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.9rem 0.85rem 0 0;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.stat + .stat {
+  padding-left: 0.85rem;
+  border-left: 1px solid var(--color-outline-variant);
+}
+
+.statValue {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.noPlanNotice {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  background-color: var(--color-surface-container-low);
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-on-surface);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.statusActions {
+  display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.memberNumberBadge {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
-  padding: 0.35rem 0.85rem;
-  font-weight: 700;
+.statusActions > button {
+  flex: 1 1 200px;
+  min-height: 48px;
 }
 
-.statusTiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
-.statusTile {
-  background-color: var(--color-surface-container-low);
-  padding: 1rem;
-  border: 1px solid var(--color-outline-variant);
+.statusActionsQuiet {
   display: flex;
-  flex-direction: column;
+  border-top: 1px solid var(--color-outline-variant);
+  padding-top: 0.25rem;
+  margin-top: -0.5rem;
+}
+
+.planLink {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   gap: 0.35rem;
-  box-shadow: none;
-}
-
-.statusTileLabel {
-  color: var(--color-on-surface-variant);
-  font-size: 0.8125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 500;
-}
-
-.statusTileValue {
-  color: var(--color-on-surface);
-  font-weight: 600;
-  font-size: 1.125rem;
-}
-
-.questionsHeader {
-  color: var(--color-on-surface);
-  font-weight: 600;
-  margin: 0.5rem 0 0 0;
-}
-
-.questionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 0.75rem;
-}
-
-.questionButton {
-  background-color: var(--color-surface-container);
-  color: var(--color-on-surface);
-  border: 1px solid var(--color-outline-strong);
+  padding: 0;
+  background: none;
+  border: none;
   border-radius: 0;
-  padding: 0.75rem 1rem;
-  text-align: left;
-  cursor: pointer;
+  color: var(--color-primary);
   font-family: inherit;
   font-size: 0.875rem;
-  box-shadow: none;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.questionButton:hover {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
-  border-color: var(--color-primary);
+.planLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.bannerNotice {
-  background-color: var(--color-surface-container);
-  color: var(--color-on-surface-variant);
-  border-left: 3px solid var(--color-primary);
-  border-top: 1px solid var(--color-outline-variant);
-  border-right: 1px solid var(--color-outline-variant);
-  border-bottom: 1px solid var(--color-outline-variant);
-  padding: 1rem;
-  box-shadow: none;
+.planLinkChevron {
+  transition: transform 0.18s ease;
+}
+
+.planLink[aria-expanded="true"] .planLinkChevron {
+  transform: rotate(180deg);
+}
+
+.primaryBtn:focus-visible,
+.outlineBtn:focus-visible,
+.planLink:focus-visible,
+.questionButton:focus-visible,
+.moreQuestionsToggle:focus-visible,
+.ownQuestionSubmit:focus-visible,
+.checkInButton:focus-visible,
+.memberAvatarButton:focus-visible,
+.memberSignOutButton:focus-visible,
+.planChoice:focus-visible,
+.payButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.questionButton:focus-visible {
+  outline-offset: -2px;
+}
+
+.askPanel {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.askHeader {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.askTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-weight: 600;
+}
+
+.askSubtitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.questionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.questionItem {
+  border-bottom: 1px solid var(--color-outline-variant);
+  border-left: 3px solid transparent;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.questionItemSelected {
+  border-left-color: var(--color-primary);
+  background-color: var(--color-surface-container-low);
+}
+
+.moreQuestionsToggle {
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: -0.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.moreQuestionsToggle:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.moreQuestionsChevron {
+  transition: transform 0.18s ease;
+}
+
+.moreQuestionsToggle[aria-expanded="true"] .moreQuestionsChevron {
+  transform: rotate(180deg);
+}
+
+.ownQuestionForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.ownQuestionLabel {
+  color: var(--color-on-surface-variant);
+}
+
+.ownQuestionRow {
+  display: flex;
+  gap: 0;
+}
+
+.ownQuestionInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 0.75rem 0.85rem;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-strong);
+  border-right: none;
+  border-radius: 0;
+}
+
+.ownQuestionInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.ownQuestionSubmit {
+  flex: none;
+  min-height: 48px;
+  padding: 0 1.25rem;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.ownQuestionSubmit:hover:not(:disabled) {
+  background-color: var(--color-on-primary-container);
+}
+
+.ownQuestionSubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ownQuestionNeedsPlan {
+  margin: 0;
+  color: var(--color-error, #ba1a1a);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ownQuestionNeedsPlan:empty {
+  display: none;
+}
+
+.ownAnswer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.875rem 1rem 1rem 0.85rem;
+  border-left: 3px solid var(--color-primary);
+  background-color: var(--color-surface-container-low);
+  animation: reveal 0.18s ease-out;
+}
+
+.ownAnswerQuestion {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ownAnswerBody {
+  margin: 0;
+  color: var(--color-on-surface);
+}
+
+.chatReply {
+  white-space: pre-wrap;
+}
+
+.prototypeNotice {
+  margin: 0.25rem 0 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.answerBody {
+  margin: 0;
+  padding: 0 1rem 1rem 0.85rem;
+  color: var(--color-on-surface);
+  animation: reveal 0.18s ease-out;
+}
+
+.memberAccountMenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.memberAvatarButton {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.memberAvatarButton:hover,
+.memberAvatarButton[aria-expanded="true"] {
+  background-color: var(--color-on-primary-container);
+  border-color: var(--color-on-primary-container);
+}
+
+@media (max-width: 899px) {
+  .memberAvatarButton[aria-expanded="false"] {
+    animation: avatarGlow 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes avatarGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--color-surface-container-lowest),
+      0 0 0 4px color-mix(in srgb, var(--color-primary) 55%, transparent),
+      0 0 6px 4px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--color-surface-container-lowest),
+      0 0 0 5px color-mix(in srgb, var(--color-primary) 80%, transparent),
+      0 0 14px 7px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  }
+}
+
+.memberAccountPanel {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 30;
+  width: 320px;
+  max-width: calc(100vw - 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-soft);
+}
+
+.memberAccountPanel[hidden] {
+  display: none;
+}
+
+.memberAccountIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.memberAccountName {
+  color: var(--color-on-surface);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.memberAccountEmail {
+  color: var(--color-on-surface-variant);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.memberAccountLinks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.memberAccountSignOut {
+  border-top: 1px solid var(--color-outline-variant);
+  padding-top: 0.75rem;
+}
+
+.memberSignOutButton {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  background-color: transparent;
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-strong);
+  border-radius: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.memberSignOutButton:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.memberSignOutButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 479px) {
+  .statGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stat,
+  .stat + .stat {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-left: none;
+  }
+
+  .stat + .stat {
+    border-top: 1px solid var(--color-outline-variant);
+  }
+
+  .stat .statValue {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.memberNumberBadge {
+  background-color: transparent;
+  color: var(--color-on-surface-variant);
+  border: 1px solid var(--color-outline-variant);
+  padding: 0.3rem 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.billingError {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border: 1px solid var(--color-error);
+  padding: 1rem;
+  font-size: 0.9375rem;
+}
+
+.statusLoading {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.statusSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeletonBlock {
+  display: block;
+  height: 3.25rem;
+  background-color: var(--color-surface-container-high);
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonTier {
+  width: 40%;
+  height: 1.75rem;
+}
+
+.skeletonHero {
+  height: 5.25rem;
+}
+
+.skeletonRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+@keyframes skeletonPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonBlock,
+  .answerBody,
+  .ownAnswer,
+  .paymentCard {
+    animation: none;
+  }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .memberAvatarButton[aria-expanded="false"] {
+    animation: none;
+    box-shadow:
+      0 0 0 2px var(--color-surface-container-lowest),
+      0 0 0 4px color-mix(in srgb, var(--color-primary) 70%, transparent);
+  }
+}
+
+.statusTileFraming {
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.statusBadge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.statusDot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex: none;
+}
+
+.statusActive .statusDot {
+  background-color: var(--color-primary);
+}
+
+.statusNew {
+  background-color: transparent;
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-strong);
+}
+
+.statusActive {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.statusGrace {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-strong);
+}
+
+.statusExpired,
+.statusCancelled {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border-color: var(--color-error);
+}
+
+.paymentCard {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: reveal 0.2s ease-out;
+}
+
+.paymentTitle {
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.paymentTitle:focus {
+  outline: none;
+}
+
+.planChooser {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.planChoices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.65rem;
+}
+
+.planChoice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.85rem;
+  border: 1px solid var(--color-outline-strong);
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.planChoice:hover {
+  border-color: var(--color-primary);
+}
+
+.planChoiceSelected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.planChoiceName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.planChoicePrice {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.planChoiceMeta {
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant);
+}
+
+.planChoiceSelected .planChoiceMeta {
+  color: var(--color-on-primary-container);
+  opacity: 0.8;
+}
+
+.paymentRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.paymentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-bottom: 0.6rem;
+}
+
+.paymentRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.paymentRowLabel {
+  color: var(--color-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.paymentRowValue {
+  color: var(--color-on-surface);
+  font-weight: 500;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.paymentAmount {
+  color: var(--color-on-surface);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.paymentNotice {
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.verifyInput::placeholder {
+  color: var(--color-outline-strong);
+  font-size: 0.875rem;
+  letter-spacing: normal;
+  opacity: 1;
+}
+
+.paymentActions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.payButton {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 0;
+  padding: 0.85rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1 1 190px;
+}
+
+.payButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.questionButton {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: none;
+  color: var(--color-on-surface);
+  border: none;
+  border-radius: 0;
+  padding: 0.875rem 1rem 0.875rem 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.questionButton:hover {
+  color: var(--color-primary);
+}
+
+.questionButton:active {
+  background-color: var(--color-surface-container);
+}
+
+.questionItemSelected .questionButton {
+  font-weight: 600;
+}
+
+.questionChevron {
+  flex: none;
+  color: var(--color-on-surface-variant);
+  transition: transform 0.18s ease, color 0.15s ease;
+}
+
+.questionButton:hover .questionChevron {
+  color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.questionItemSelected .questionChevron,
+.questionItemSelected .questionButton:hover .questionChevron {
+  color: var(--color-primary);
+  transform: rotate(90deg);
 }
 
 /* Footer */
@@ -479,6 +1467,51 @@
   border: 0;
 }
 
+/* Payment return banner */
+.paymentBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.875rem 1rem;
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-left: 3px solid var(--color-primary);
+  animation: reveal 0.18s ease-out;
+}
+
+.paymentBanner[data-state="confirmed"] {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border-color: var(--color-primary);
+}
+
+.paymentBanner[data-state="failed"] {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border-color: var(--color-error, #ba1a1a);
+}
+
+.paymentBanner[data-state="stillConfirming"] {
+  border-left-color: var(--color-outline-strong);
+}
+
+.paymentBannerPulse {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paymentBanner,
+  .paymentBannerPulse {
+    animation: none;
+  }
+}
+
 /* Email verification banner */
 .verifyBanner {
   background-color: var(--color-surface-container);
@@ -518,6 +1551,11 @@
   font-size: 1rem;
   letter-spacing: 0.25em;
   width: 8.5rem;
+}
+
+.verifyInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
 }
 
 .verifyButton {
@@ -578,6 +1616,19 @@
   padding-top: 1rem;
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deleteForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deleteActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: 0.75rem;
 }
 

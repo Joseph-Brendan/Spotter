@@ -48,7 +48,7 @@ describe.skipIf(!hasTestDatabase)("purgeExpiredDeletions", () => {
     await prisma.ledgerEntry.deleteMany();
     await prisma.membershipChange.deleteMany();
     await prisma.payment.deleteMany();
-    await prisma.paymentAttempt.deleteMany();
+    await prisma.paymentLog.deleteMany();
     await prisma.memberSession.deleteMany();
     await prisma.member.deleteMany();
     await prisma.gym.deleteMany();

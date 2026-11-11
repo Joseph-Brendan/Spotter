@@ -82,7 +82,7 @@ export async function loginStaff(input: StaffLoginInput): Promise<StaffAuthResul
       where: { id: staff.id },
       data: { failedLoginCount: 0, lockedUntil: null },
     });
-    await createStaffSession(staff.id);
+    await createStaffSession(staff);
 
     return {
       success: true,

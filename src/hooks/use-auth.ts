@@ -1,7 +1,13 @@
 "use client";
 
+import { useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { copy } from "@/lib/copy";
+import type { MemberBillingSummary } from "@/types/member";
+import type {
+  InitiatePaymentInput,
+  InitiatePaymentResult,
+} from "@/types/payments";
 
 export interface SessionMember {
   memberId: string;
@@ -14,6 +20,8 @@ export interface SessionMember {
 
 interface SessionPayload {
   member: SessionMember | null;
+  billing: MemberBillingSummary | null;
+  billingError: boolean;
 }
 
 interface LoginInput {
@@ -97,15 +105,23 @@ function useSessionCache() {
 
   return {
     setMember: (member: SessionMember | null) => {
-      queryClient.setQueryData<SessionPayload>(SESSION_KEY, { member });
+      queryClient.setQueryData<SessionPayload>(SESSION_KEY, {
+        member,
+        billing: null,
+        billingError: false,
+      });
     },
     markVerified: () => {
       queryClient.setQueryData<SessionPayload>(SESSION_KEY, (previous) =>
         previous?.member
-          ? { member: { ...previous.member, emailVerified: true } }
+          ? {
+              ...previous,
+              member: { ...previous.member, emailVerified: true },
+            }
           : previous
       );
     },
+    refresh: () => queryClient.invalidateQueries({ queryKey: SESSION_KEY }),
   };
 }
 
@@ -120,38 +136,59 @@ export function useSession() {
       }
 
       const data = await response.json();
-      return { member: data.member ?? null };
+      return {
+        member: data.member ?? null,
+        billing: data.billing ?? null,
+        billingError: data.billingError === true,
+      };
     },
   });
 
   return {
     member: query.data?.member ?? null,
+    billing: query.data?.billing ?? null,
+    billingError: query.data?.billingError ?? false,
     isLoading: query.isPending,
   };
 }
 
+export function useRefreshSession() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: SESSION_KEY }),
+    [queryClient]
+  );
+}
+
 export function useLogin() {
-  const { setMember } = useSessionCache();
+  const { setMember, refresh } = useSessionCache();
 
   return useMutation({
     mutationFn: (input: LoginInput) =>
       postJson<LoginResponse>("/api/auth/login", input, copy.login.failed),
-    onSuccess: (data) => setMember(data.session),
+    onSuccess: (data) => {
+      setMember(data.session);
+      void refresh();
+    },
   });
 }
 
 export function useSignUp() {
-  const { setMember } = useSessionCache();
+  const { setMember, refresh } = useSessionCache();
 
   return useMutation({
     mutationFn: (input: SignUpInput) =>
       postJson<SignUpResponse>("/api/auth/signup", input, copy.signup.memberNumberNotFound),
-    onSuccess: (data) => setMember(data.session),
+    onSuccess: (data) => {
+      setMember(data.session);
+      void refresh();
+    },
   });
 }
 
 export function useResetPassword() {
-  const { setMember } = useSessionCache();
+  const { setMember, refresh } = useSessionCache();
 
   return useMutation({
     mutationFn: (input: ResetPasswordInput) =>
@@ -159,6 +196,7 @@ export function useResetPassword() {
     onSuccess: (data) => {
       if (data.session) {
         setMember(data.session);
+        void refresh();
       }
     },
   });
@@ -216,6 +254,22 @@ export function useResendVerification() {
       if (data.alreadyVerified) {
         markVerified();
       }
+    },
+  });
+}
+
+export function useInitiatePayment() {
+  const { refresh } = useSessionCache();
+
+  return useMutation({
+    mutationFn: (input: InitiatePaymentInput) =>
+      postJson<InitiatePaymentResult>(
+        "/api/payments/initiate",
+        input,
+        copy.payments.failedToStart
+      ),
+    onSuccess: () => {
+      void refresh();
     },
   });
 }

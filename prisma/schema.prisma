@@ -11,6 +11,7 @@ datasource db {
 enum Tier {
   BASIC
   PREMIUM
+  DIAMOND
 }
 
 enum PaymentPurpose {
@@ -29,6 +30,38 @@ enum PaymentStatus {
   SUCCESS
   FAILED
   ABANDONED
+}
+
+enum PaymentLogEventType {
+  INITIATED
+  GATEWAY_INIT_SUCCEEDED
+  GATEWAY_INIT_FAILED
+  WEBHOOK_RECEIVED
+  WEBHOOK_REJECTED
+  VERIFY_FAILED
+  VERIFY_MISMATCH
+  GATEWAY_PENDING
+  GATEWAY_FAILED
+  CONFIRMED
+  ABANDONED
+}
+
+enum PaymentLogEventReason {
+  HTTP_ERROR
+  NETWORK_ERROR
+  NO_LINK
+  MISSING_HASH
+  BAD_HASH
+  SECRET_NOT_CONFIGURED
+  BAD_BODY
+  MISSING_TX_REF
+  UNKNOWN_REFERENCE
+  MISSING_TRANSACTION_ID
+  VERIFY_NOT_CONFIGURED
+  VERIFY_REQUEST_FAILED
+  DETAILS_MISMATCH
+  PLAN_SNAPSHOT_MISSING
+  PENDING_TIMEOUT
 }
 
 enum CheckInSource {
@@ -129,11 +162,11 @@ model Member {
   id                    String             @id @default(cuid())
   gymId                 String
   gym                   Gym                @relation(fields: [gymId], references: [id])
-  name                  String
+  name                  String?
   memberNumber          String
   phone                 String?
-  tier                  Tier               @default(BASIC)
-  expiryDate            DateTime
+  tier                  Tier?
+  expiryDate            DateTime?
   cancelledAt           DateTime?
   email                 String?            @unique
   passwordHash          String?
@@ -157,7 +190,7 @@ model Member {
   checkInCodes          CheckInCode[]
   ledgerEntries         LedgerEntry[]
   payments              Payment[]
-  paymentAttempts       PaymentAttempt[]
+  paymentLogs           PaymentLog[]
   membershipChanges     MembershipChange[]
   questionLogs          QuestionLog[]
 
@@ -227,6 +260,7 @@ model MemberNumberReservation {
   createdByStaffId String
   createdBy        Staff    @relation("MemberNumberReservedBy", fields: [createdByStaffId], references: [id])
   createdAt        DateTime @default(now())
+  claimedAt        DateTime?
 
   @@unique([gymId, memberNumber])
   @@index([createdByStaffId, createdAt])
@@ -345,23 +379,42 @@ model CheckIn {
   @@unique([memberId, date])
 }
 
-// PRIVATE. Fetched by exact member ID only, never searched across members.
-model PaymentAttempt {
-  id             String         @id @default(cuid())
-  memberId       String
-  member         Member         @relation(fields: [memberId], references: [id])
-  idempotencyKey String         @unique
-  reference      String         @unique
-  purpose        PaymentPurpose
-  amountKobo     Int
-  currency       String         @default("NGN")
-  status         PaymentStatus  @default(PENDING)
-  failureReason  String?
-  resolvedAt     DateTime?
-  payment        Payment?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+// PRIVATE. Append-only event log of the payment journey.
+// Each step writes an immutable row. Updates and deletes are blocked by a trigger.
+model PaymentLog {
+  id                   String                 @id @default(cuid())
+  reference            String
+  idempotencyKey       String?                @unique
+  memberId             String?
+  member               Member?                @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  type                 PaymentLogEventType
+  status               PaymentStatus          @default(PENDING)
+  reason               PaymentLogEventReason?
 
+  // Initiated & plan snapshot details.
+  purpose              PaymentPurpose?
+  amountKobo           Int?
+  currency             String                 @default("NGN")
+  planTier             Tier?
+  planDurationDays     Int?
+
+  // Journey: gateway initialisation.
+  checkoutUrl          String?
+
+  // Journey: webhook and gateway verification evidence.
+  gatewayTransactionId String?
+  gatewayReference     String?
+  gatewayStatus        String?
+  reportedAmountKobo   Int?
+  reportedCurrency     String?
+  verificationError    String?
+
+  // Link to the confirmed payment receipt (set on CONFIRMED row).
+  payment              Payment?
+  createdAt            DateTime               @default(now())
+
+  @@index([reference, createdAt])
+  @@index([memberId, createdAt])
   @@index([memberId, status])
 }
 
@@ -371,7 +424,7 @@ model Payment {
   memberId          String
   member            Member             @relation(fields: [memberId], references: [id])
   attemptId         String?            @unique
-  attempt           PaymentAttempt?    @relation(fields: [attemptId], references: [id])
+  attempt           PaymentLog?        @relation(fields: [attemptId], references: [id])
   reference         String             @unique
   gatewayReference  String?            @unique
   amountKobo        Int
@@ -474,4 +527,18 @@ model PrivateAccessLog {
   createdAt       DateTime @default(now())
 
   @@index([sessionMemberId, targetMemberId])
+}
+
+// PRIVATE. Written on every private read by an owner screen.
+model StaffMemberAccessLog {
+  id           String   @id @default(cuid())
+  staffId      String
+  memberId     String
+  gymId        String
+  functionName String
+  createdAt    DateTime @default(now())
+
+  @@index([staffId, createdAt])
+  @@index([memberId, createdAt])
+  @@index([gymId, createdAt])
 }

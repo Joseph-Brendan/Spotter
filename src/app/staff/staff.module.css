@@ -31,14 +31,6 @@
   color: var(--color-on-surface-variant);
 }
 
-.shell {
-  width: 100%;
-  max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 .loginShell {
   width: 100%;
   max-width: 440px;
@@ -88,41 +80,11 @@
   gap: 1.25rem;
 }
 
-.metaRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  border-bottom: 1px solid var(--color-outline-variant);
-  padding-bottom: 1rem;
-}
-
-.who {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.whoName {
-  color: var(--color-on-surface);
-  font-weight: 600;
-}
-
-.whoRole {
-  color: var(--color-on-surface-variant);
-}
-
-.reserveForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .label {
@@ -133,7 +95,7 @@
 .input {
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
-  border: 1px solid var(--color-outline);
+  border: 1px solid var(--color-outline-strong);
   padding: 0.75rem 0.85rem;
   font-family: inherit;
   font-size: 1rem;
@@ -141,9 +103,20 @@
   width: 100%;
 }
 
+.input::placeholder {
+  color: var(--color-outline-strong);
+  font-size: 0.875rem;
+  opacity: 1;
+}
+
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
+}
+
+.inputInvalid,
+.inputInvalid:focus {
+  border-color: var(--color-error);
 }
 
 .button {
@@ -160,7 +133,6 @@
   letter-spacing: var(--typography-label-large-letter-spacing);
   box-shadow: none;
   width: 100%;
-  transition: background-color 0.15s ease;
 }
 
 .button:hover:not(:disabled) {
@@ -173,15 +145,19 @@
 }
 
 .secondaryButton {
-  background-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-surface-container-lowest);
   color: var(--color-on-surface);
-  border: 1px solid var(--color-outline);
-  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--color-outline-strong);
   border-radius: 0;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   box-shadow: none;
 }
 
@@ -198,55 +174,426 @@
   box-shadow: none;
 }
 
-.result {
+.ownerNotice {
   background-color: var(--color-primary-container);
   color: var(--color-on-primary-container);
   border: 1px solid var(--color-primary);
-  padding: 1.25rem;
+  border-left-width: 3px;
+  padding: 0.85rem 1rem;
+  font-size: 0.9375rem;
+}
+
+/* ==========================================================================
+   Staff dashboard
+   ========================================================================== */
+
+.dashboardPage {
+  --staff-content-max-width: 1180px;
+  --staff-content-gutter: clamp(1rem, 4vw, 2.5rem);
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface);
 }
 
-.resultLabel {
-  font-size: 0.75rem;
+.skipLink {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1.5rem));
 }
 
-.resultValue {
-  font-family: var(--typography-headline-large-font-family);
-  font-size: clamp(2.5rem, 8vw, 4rem);
-  line-height: 1.05;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  overflow-wrap: anywhere;
+.skipLink:focus {
+  transform: translateY(0);
 }
 
-.hint {
-  color: var(--color-on-surface-variant);
-  margin: 0;
-  max-width: 62ch;
+/* App bar */
+
+.appBar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: var(--color-surface-container-lowest);
+  border-bottom: 1px solid var(--color-outline-variant);
 }
 
-.buttonRow {
+.appBarInner {
+  width: 100%;
+  max-width: var(--staff-content-max-width);
+  min-height: 64px;
+  margin: 0 auto;
+  padding: 0.75rem var(--staff-content-gutter);
+  box-sizing: border-box;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+.appBarBrand {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.accountMenu {
+  position: relative;
+  display: flex;
   align-items: center;
 }
 
-.logoutForm {
+.avatarButton {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+
+.avatarButton:hover,
+.avatarButton[aria-expanded="true"] {
+  background-color: var(--color-on-primary-container);
+  border-color: var(--color-on-primary-container);
+}
+
+.accountPanel {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 30;
+  width: 260px;
+  max-width: calc(100vw - 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-soft);
+}
+
+.accountPanel[hidden] {
+  display: none;
+}
+
+.accountIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.accountIdentityLabel {
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.accountIdentityName {
+  color: var(--color-on-surface);
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.accountPanelForm {
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.logOutButton {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  background-color: transparent;
+  color: var(--color-on-surface);
+  border: 1px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  box-shadow: none;
+}
+
+.logOutButton:hover {
+  background-color: var(--color-surface-container-low);
+  border-color: var(--color-outline-variant);
+  color: var(--color-primary);
+}
+
+/* Main content */
+
+.main {
+  width: 100%;
+  max-width: var(--staff-content-max-width);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem) var(--staff-content-gutter) 4rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.5rem);
+  scroll-margin-top: 5rem;
+}
+
+.main:focus {
+  outline: none;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  flex-wrap: wrap;
+}
+
+.pageHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  max-width: 70ch;
+}
+
+.pageActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+}
+
+.pageSubtitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.panel {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panelHeader {
+  padding: 1.25rem clamp(1rem, 3vw, 1.75rem);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.panelTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+}
+
+.panelBody {
+  padding: clamp(1rem, 3vw, 1.75rem);
+}
+
+/* Generate member number */
+
+.reserveForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0;
+  min-width: 0;
+  max-width: 44rem;
+}
+
+.reserveRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.reserveInput {
+  flex: 999 1 16rem;
+  width: auto;
+  min-width: 0;
+  min-height: 48px;
+}
+
+.reserveButton {
+  flex: 1 0 auto;
+  width: auto;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  white-space: nowrap;
+}
+
+.formSuccess {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-primary-container);
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-on-primary-container);
+}
+
+.formError {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-error-container);
+  border-left: 3px solid var(--color-error);
+  color: var(--color-on-error-container);
+}
+
+/* Generated numbers */
+
+.numberHistory {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.numberHistoryHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.numberHistoryHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1 1 18rem;
+}
+
+.numberHistoryTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+}
+
+.numberHistoryDescription {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.tableSearch {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 16rem;
+  max-width: 320px;
   margin: 0;
 }
 
-.footer {
-  color: var(--color-on-surface-variant);
-  text-align: center;
+.searchField {
+  position: relative;
+  width: 100%;
+  min-width: 0;
 }
 
-.srOnly {
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: var(--color-on-surface-variant);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0.55rem 2.5rem 0.55rem 2.4rem;
+  border: 1px solid var(--color-outline-strong);
+  border-radius: 0;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.searchInput::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.searchInput::placeholder {
+  color: var(--color-outline-strong);
+  font-size: 0.8125rem;
+  opacity: 1;
+}
+
+.searchClearButton {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+}
+
+.searchInput:placeholder-shown + .searchClearButton {
+  visibility: hidden;
+}
+
+.searchClearButton:hover {
+  background-color: var(--color-surface-container-low);
+  color: var(--color-primary);
+}
+
+.searchSubmit {
+  flex: none;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+}
+
+.visuallyHidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -256,4 +603,1258 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.numberHistoryEmpty {
+  margin: 0;
+  padding: 2rem 1.25rem;
+  background-color: var(--color-surface-container-low);
+  border: 1px dashed var(--color-outline-strong);
+  color: var(--color-on-surface-variant);
+  text-align: center;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-lowest);
+}
+
+.tableScroll:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.numberTable {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.numberTable thead {
+  background-color: var(--color-surface-container-low);
+}
+
+.numberTable th,
+.numberTable td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-size: 0.875rem;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.numberTable thead th {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  color: var(--color-on-surface-variant);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.numberTable tbody tr:last-child th,
+.numberTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.numberTable tbody tr:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.numberCell {
+  color: var(--color-on-surface);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.numberTable .numberCell {
+  font-weight: 700;
+}
+
+.memberNumberButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--color-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.memberNumberButton:hover {
+  text-decoration-thickness: 2px;
+}
+
+.numberHash {
+  margin-right: 0.05em;
+}
+
+.statusCell {
+  white-space: nowrap;
+}
+
+.generatedCell {
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+}
+
+.emailCellEmpty {
+  color: var(--color-on-surface-variant);
+}
+
+.generatedDateTime {
+  display: inline;
+}
+
+.generatedDate {
+  display: none;
+}
+
+.emailCell {
+  max-width: 18rem;
+}
+
+.emailText {
+  display: block;
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emailMissing {
+  color: var(--color-on-surface-variant);
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.numberTable tbody .clickableRow:focus-within {
+  background-color: var(--color-surface-container-low);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.statusBadge::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex: none;
+}
+
+.statusUnclaimed {
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary-container);
+}
+
+.statusClaimed {
+  background-color: var(--color-surface-container-high);
+  border-color: var(--color-outline-strong);
+  color: var(--color-on-surface-variant);
+}
+
+.tableFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.tableSummary {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.pageControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  box-sizing: border-box;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-strong);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pageButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pageButtonDisabled,
+.pageButtonDisabled:hover {
+  color: var(--color-on-surface-variant);
+  border-color: var(--color-outline-variant);
+  background-color: var(--color-surface-container-low);
+  cursor: not-allowed;
+}
+
+/* Membership plans */
+
+.plansTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem 0.5rem 0.9rem;
+  box-sizing: border-box;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-strong);
+  border-radius: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.plansTrigger svg {
+  flex: none;
+  color: var(--color-on-surface-variant);
+}
+
+.plansTrigger:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.plansTrigger:hover svg {
+  color: var(--color-primary);
+}
+
+.plansTriggerCount {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--color-outline-strong);
+  border-radius: 999px;
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.plansTriggerCountComplete {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* Plans drawer */
+
+.plansDrawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(440px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--color-outline-variant);
+  border-radius: 0;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.plansDrawer[open] {
+  animation: plansDrawerIn 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.plansDrawer::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.plansDrawer[open]::backdrop {
+  animation: plansBackdropIn 240ms ease-out;
+}
+
+@keyframes plansDrawerIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes plansBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.plansDrawerInner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.plansDrawerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: none;
+  padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-lowest);
+}
+
+.plansDrawerHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.plansDrawerTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+}
+
+.drawerClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -0.35rem -0.35rem 0 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+}
+
+.drawerClose:hover {
+  background-color: var(--color-surface-container-low);
+  border-color: var(--color-outline-variant);
+  color: var(--color-primary);
+}
+
+.plansDrawerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 1.25rem 1.5rem 2rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sectionSubtitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.plansProgress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plansCount {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.plansMeter {
+  display: grid;
+  grid-template-columns: repeat(3, 2.25rem);
+  gap: 0.25rem;
+}
+
+.plansMeterSegment {
+  display: block;
+  height: 0.375rem;
+  background-color: var(--color-surface-container-highest);
+}
+
+.plansMeterSegmentFilled {
+  background-color: var(--color-primary);
+}
+
+.plansDrawerBody .ownerNotice {
+  margin: 0;
+}
+
+.skeletonBar {
+  display: block;
+  height: 0.875rem;
+  background-color: var(--color-surface-container-high);
+}
+
+.skeletonTitle {
+  width: 9rem;
+  height: 1.5rem;
+}
+
+.skeletonSubtitle {
+  width: 22rem;
+  max-width: 100%;
+}
+
+.skeletonHeading {
+  width: 7rem;
+  height: 1.125rem;
+}
+
+.skeletonAvatar {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-surface-container-high);
+}
+
+.skeletonField {
+  flex: 999 1 16rem;
+  min-height: 48px;
+  background-color: var(--color-surface-container-high);
+}
+
+.skeletonButton {
+  flex: 1 0 auto;
+  min-height: 48px;
+  background-color: var(--color-surface-container-high);
+}
+
+.skeletonRow {
+  display: block;
+  height: 3.25rem;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-low);
+}
+
+.plansLoading {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.plansError {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.planCard {
+  display: flex;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-lowest);
+}
+
+.planCardSet {
+  border-top: 3px solid var(--color-primary);
+}
+
+.planCardEmpty {
+  border: 1px dashed var(--color-outline-strong);
+  background-color: var(--color-surface-container-low);
+}
+
+.planCardEditing {
+  border: 1px solid var(--color-primary);
+  border-top-width: 3px;
+  box-shadow: var(--shadow-soft);
+}
+
+.planCardInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+.planCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.planTierName {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.planStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.planStatusBadge::before {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex: none;
+}
+
+.planStatusSet {
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary-container);
+}
+
+.planStatusUnset {
+  background-color: var(--color-surface-container-lowest);
+  border-color: var(--color-outline-strong);
+  color: var(--color-on-surface-variant);
+}
+
+.planCardBody {
+  flex: 1 1 auto;
+  padding-bottom: 0.5rem;
+}
+
+.planPrice {
+  margin: 0;
+  color: var(--color-on-surface);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.planPriceAmount {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.planPriceTerm {
+  color: var(--color-on-surface-variant);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.planEmptyText {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.planCardFooter {
+  display: flex;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.planCardEmpty .planCardFooter {
+  border-top-style: dashed;
+  border-top-color: var(--color-outline-strong);
+}
+
+.planCardAction {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.875rem;
+}
+
+.planCardActionEmphasis {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.planSavedRegion:empty {
+  display: none;
+}
+
+.planEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: stretch;
+  min-height: 48px;
+  box-sizing: border-box;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-strong);
+}
+
+.inputGroup:focus-within {
+  border-color: var(--color-primary);
+}
+
+.inputGroupInvalid,
+.inputGroupInvalid:focus-within {
+  border-color: var(--color-error);
+}
+
+.inputGroupControl {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.inputGroupControl::placeholder {
+  color: var(--color-outline-strong);
+  font-size: 0.875rem;
+  opacity: 1;
+}
+
+.inputAdornment {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 0 0.85rem;
+  border-right: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.inputAdornmentEnd {
+  border-right: none;
+  border-left: 1px solid var(--color-outline-variant);
+}
+
+.planEditorActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.25rem;
+}
+
+.planEditorButton {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+}
+
+/* Member details dialog */
+
+.memberDialog {
+  width: min(640px, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-medium);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+.memberDialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.memberDialogContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.memberDialogHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-low);
+}
+
+.memberDialogIdentity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.memberDialogAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.memberDialogHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.memberDialogEyebrow {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.memberDialogName {
+  margin: 0;
+  color: var(--color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.memberDialogMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.memberDialogNumber {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.memberDialogClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -0.35rem -0.5rem 0 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+}
+
+.memberDialogClose:hover {
+  background-color: var(--color-surface-container-lowest);
+  border-color: var(--color-outline-variant);
+  color: var(--color-primary);
+}
+
+.memberDialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.memberDialogLoading {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.9375rem;
+}
+
+.memberSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.memberSkeletonLine {
+  display: block;
+  height: 0.875rem;
+  background-color: var(--color-surface-container-high);
+}
+
+.memberSkeletonLine:nth-child(1) {
+  width: 35%;
+}
+
+.memberSkeletonLine:nth-child(2) {
+  width: 70%;
+}
+
+.memberSkeletonLine:last-child {
+  width: 55%;
+}
+
+.memberSkeletonTiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.memberSkeletonTile {
+  display: block;
+  height: 4.75rem;
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.memberDialogErrorBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.memberDialogError {
+  margin: 0;
+  align-self: stretch;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border-left: 3px solid var(--color-error);
+  font-size: 0.875rem;
+}
+
+.memberModalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.memberModalSection + .memberModalSection {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.memberModalSectionTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.memberModalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.memberModalGrid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.memberModalGrid dt {
+  color: var(--color-on-surface-variant);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.memberModalGrid dd {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.memberModalWide {
+  grid-column: 1 / -1;
+}
+
+.memberModalGrid > .memberStat {
+  gap: 0.4rem;
+  padding: 1rem;
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.memberModalGrid .memberStatValue {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.memberStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.memberStatusBadge::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex: none;
+}
+
+.memberStatusNew,
+.memberStatusCancelled {
+  background-color: var(--color-surface-container-high);
+  border-color: var(--color-outline-strong);
+  color: var(--color-on-surface-variant);
+}
+
+.memberStatusActive {
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary-container);
+}
+
+.memberStatusGrace {
+  background-color: var(--color-tertiary-container);
+  border-color: var(--color-tertiary);
+  color: var(--color-on-tertiary-container);
+}
+
+.memberStatusExpired {
+  background-color: var(--color-error-container);
+  border-color: var(--color-error);
+  color: var(--color-on-error-container);
+}
+
+.memberPlanTier {
+  display: block;
+  font-weight: 600;
+}
+
+.memberPlanUnpaid {
+  display: block;
+  color: var(--color-on-surface-variant);
+}
+
+.memberPlanTerms {
+  display: block;
+  color: var(--color-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+/* Focus */
+
+.dashboardPage a:focus-visible,
+.dashboardPage button:focus-visible,
+.memberDialog button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.dashboardPage input:focus,
+.dashboardPage input:focus-visible {
+  outline: none;
+}
+
+/* Responsive */
+
+@media (prefers-reduced-motion: reduce) {
+  .plansDrawer[open],
+  .plansDrawer[open]::backdrop {
+    animation: none;
+  }
+}
+
+@media (min-width: 720px) and (max-width: 1023px) {
+  .numberHistoryHeader {
+    align-items: center;
+  }
+
+  .numberHistoryDescription {
+    display: none;
+  }
+}
+
+@media (max-width: 719px) {
+  .numberHistoryDescription {
+    display: none;
+  }
+
+  .tableScroll {
+    overflow-x: visible;
+  }
+
+  .numberTable,
+  .numberTable tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .numberTable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .numberTable tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "number status"
+      "email email"
+      "generated generated";
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.15rem;
+    padding: 0.75rem 1rem 0.9rem;
+    border-bottom: 1px solid var(--color-outline-variant);
+  }
+
+  .numberTable tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .numberTable tbody th,
+  .numberTable tbody td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .numberTable .numberCell {
+    grid-area: number;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  .numberTable .numberCell .memberNumberButton {
+    min-height: 44px;
+  }
+
+  .numberTable .numberHash {
+    color: var(--color-on-surface-variant);
+    font-weight: 600;
+  }
+
+  .numberTable .statusCell {
+    grid-area: status;
+    justify-self: end;
+  }
+
+  .numberTable .emailCell {
+    grid-area: email;
+    max-width: none;
+  }
+
+  .numberTable .emailText {
+    max-width: 100%;
+    color: var(--color-on-surface);
+  }
+
+  .numberTable .emailCellEmpty {
+    display: none;
+  }
+
+  .numberTable .generatedCell {
+    grid-area: generated;
+    font-size: 0.8125rem;
+  }
+
+  .numberTable .generatedDateTime {
+    display: none;
+  }
+
+  .numberTable .generatedDate {
+    display: inline;
+  }
+}
+
+@media (max-width: 640px) {
+  .tableSearch {
+    max-width: none;
+  }
+
+  .pageActions,
+  .plansTrigger {
+    width: 100%;
+  }
+
+  .plansTrigger {
+    justify-content: flex-start;
+  }
+
+  .plansTriggerCount {
+    margin-left: auto;
+  }
+
+  .plansDrawerHeader {
+    padding-left: 1.15rem;
+  }
+
+  .plansDrawerBody {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .memberModalGrid > div:not(.memberStat) {
+    grid-column: 1 / -1;
+  }
+
+  .memberDialogHeader,
+  .memberDialogBody {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+
+  .memberDialogAvatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1.0625rem;
+  }
+
+  .memberModalGrid .memberStatValue {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 859px) {
+  .appBar {
+    position: static;
+  }
+}
+
+@media (forced-colors: active) {
+  .statusBadge,
+  .planStatusBadge,
+  .memberStatusBadge {
+    border-color: CanvasText;
+  }
+
+  .memberSkeletonLine,
+  .memberSkeletonTile,
+  .plansMeterSegment {
+    border: 1px solid CanvasText;
+  }
+
+  .plansMeterSegmentFilled {
+    background-color: Highlight;
+  }
 }

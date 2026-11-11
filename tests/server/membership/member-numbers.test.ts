@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/server/db";
 import {
-  getLatestReservation,
+  listMemberNumberReservations,
   reserveMemberNumber,
 } from "@/server/membership/member-numbers";
 
@@ -74,13 +74,201 @@ describe.skipIf(!hasTestDatabase)("member number reservation", () => {
       true
     );
 
-    const latest = await getLatestReservation({
-      gymId: gym.id,
-      staffId: staff.id,
+    const members = await prisma.member.findMany({
+      where: { gymId: gym.id },
+      orderBy: { createdAt: "asc" },
     });
 
-    expect([first.memberNumber, second.memberNumber]).toContain(
-      latest?.memberNumber
+    expect(members).toHaveLength(2);
+    expect(members.map((row) => row.memberNumber).sort()).toEqual(
+      [first.memberNumber, second.memberNumber].sort()
     );
+    expect(
+      members.every(
+        (row) =>
+          row.name === null &&
+          row.expiryDate === null &&
+          row.email === null &&
+          row.passwordHash === null &&
+          row.accountCreatedAt === null
+      )
+    ).toBe(true);
+
+    const history = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: "",
+      includeEmail: true,
+    });
+
+    expect(history.timezone).toBe("Africa/Lagos");
+    expect(history.pagination).toEqual({
+      page: 1,
+      pageSize: 5,
+      totalCount: 2,
+      totalPages: 1,
+    });
+    expect(history.reservations).toHaveLength(2);
+    expect(history.reservations.every((row) => row.claimedAt === null)).toBe(
+      true
+    );
+    expect(
+      history.reservations.every((row) => row.email === "member@example.com")
+    ).toBe(true);
+    expect(
+      history.reservations.map((row) => row.memberNumber).sort()
+    ).toEqual([first.memberNumber, second.memberNumber].sort());
+
+    const staffHistory = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: "",
+      includeEmail: false,
+    });
+
+    expect(
+      staffHistory.reservations.every((row) => !("email" in row))
+    ).toBe(true);
+
+    const claimedAt = new Date("2026-11-01T10:00:00.000Z");
+
+    await prisma.memberNumberReservation.update({
+      where: {
+        gymId_memberNumber: {
+          gymId: gym.id,
+          memberNumber: first.memberNumber as string,
+        },
+      },
+      data: { claimedAt },
+    });
+
+    const afterClaim = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: "",
+      includeEmail: true,
+    });
+    const claimedRow = afterClaim.reservations.find(
+      (row) => row.memberNumber === first.memberNumber
+    );
+
+    expect(claimedRow?.claimedAt).toBe(claimedAt.toISOString());
+  });
+
+  it("returns five reservations per page and clamps out-of-range pages", async () => {
+    const { gym, staff } = await createGymAndStaff();
+
+    for (let index = 0; index < 6; index += 1) {
+      const result = await reserveMemberNumber({
+        gymId: gym.id,
+        staffId: staff.id,
+        email: `member${index}@example.com`,
+      });
+
+      expect(result.success).toBe(true);
+    }
+
+    const firstPage = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: "",
+      includeEmail: true,
+    });
+
+    expect(firstPage.reservations).toHaveLength(5);
+    expect(firstPage.pagination).toEqual({
+      page: 1,
+      pageSize: 5,
+      totalCount: 6,
+      totalPages: 2,
+    });
+
+    const secondPage = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 2,
+      search: "",
+      includeEmail: true,
+    });
+
+    expect(secondPage.reservations).toHaveLength(1);
+    expect(secondPage.pagination).toEqual({
+      page: 2,
+      pageSize: 5,
+      totalCount: 6,
+      totalPages: 2,
+    });
+
+    const clampedPage = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 99,
+      search: "",
+      includeEmail: true,
+    });
+
+    expect(clampedPage.pagination.page).toBe(2);
+    expect(clampedPage.reservations).toHaveLength(1);
+  });
+
+  it("fuzzy searches member numbers", async () => {
+    const { gym, staff } = await createGymAndStaff();
+
+    const joseph = await reserveMemberNumber({
+      gymId: gym.id,
+      staffId: staff.id,
+      email: "joseph@example.com",
+    });
+    const amaka = await reserveMemberNumber({
+      gymId: gym.id,
+      staffId: staff.id,
+      email: "amaka@example.com",
+    });
+
+    expect(joseph.success).toBe(true);
+    expect(amaka.success).toBe(true);
+
+    const number = joseph.memberNumber as string;
+    const lastDigit = Number(number[5]);
+    const typo = `${number.slice(0, 5)}${(lastDigit + 1) % 10}`;
+
+    const byNumberTypo = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: typo,
+      includeEmail: true,
+    });
+
+    expect(byNumberTypo.reservations.map((row) => row.memberNumber)).toContain(
+      joseph.memberNumber
+    );
+    expect(byNumberTypo.pagination.totalCount).toBeGreaterThanOrEqual(1);
+
+    const byEmailTypo = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: "josph",
+      includeEmail: true,
+    });
+
+    expect(byEmailTypo.reservations.map((row) => row.memberNumber)).toContain(
+      joseph.memberNumber
+    );
+
+    const staffEmailSearch = await listMemberNumberReservations({
+      gymId: gym.id,
+      staffId: staff.id,
+      page: 1,
+      search: "josph",
+      includeEmail: false,
+    });
+
+    expect(staffEmailSearch.pagination.totalCount).toBe(0);
   });
 });

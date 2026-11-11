@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AuthView, { type AuthViewKind } from "@/components/auth-view";
+import QueryProvider from "@/components/query-provider";
 
 const VIEW_TITLES: Record<AuthViewKind, string> = {
   login: "Log In",
@@ -24,5 +25,9 @@ export async function generateMetadata({ searchParams }: AuthPageProps): Promise
 export default async function AuthPage({ searchParams }: AuthPageProps) {
   const { view, email } = await searchParams;
   const initialEmail = Array.isArray(email) ? email[0] : email;
-  return <AuthView view={parseView(view)} initialEmail={initialEmail} />;
+  return (
+    <QueryProvider>
+      <AuthView view={parseView(view)} initialEmail={initialEmail} />
+    </QueryProvider>
+  );
 }

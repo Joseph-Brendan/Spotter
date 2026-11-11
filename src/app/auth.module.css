@@ -114,6 +114,13 @@
   width: 100%;
 }
 
+.inputControl::placeholder,
+.passwordInput::placeholder {
+  color: var(--color-outline-strong);
+  font-size: 0.875rem;
+  opacity: 1;
+}
+
 .inputControl:focus {
   outline: none;
   border-color: var(--color-primary);

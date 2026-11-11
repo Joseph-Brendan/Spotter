@@ -30,6 +30,7 @@ async function purgeMember(memberId: string, now: Date): Promise<void> {
     prisma.privateAccessLog.deleteMany({
       where: { OR: [{ sessionMemberId: memberId }, { targetMemberId: memberId }] },
     }),
+    prisma.staffMemberAccessLog.deleteMany({ where: { memberId } }),
     prisma.member.update({
       where: { id: memberId },
       data: {
